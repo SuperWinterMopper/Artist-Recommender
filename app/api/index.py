@@ -6,12 +6,12 @@ incomes = [
     { 'description': 'salary', 'amount': 5000 }
 ]
 
-@app.route('/api/incomes')
+@app.route('/flask/incomes')
 def get_incomes():
     print("CALLED API")
     return jsonify(incomes)
 
-@app.route('/api/incomes', methods=['POST'])
+@app.route('/flask/incomes', methods=['POST'])
 def add_income():
     incomes.append(request.get_json())
     return '', 204
