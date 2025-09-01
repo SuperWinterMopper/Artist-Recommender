@@ -18,8 +18,7 @@ def processRatings():
     {
         'artist': string, 
         'rating': number,
-    } 
-    
+    }
     and applies processes them. 
     """
     print("Recieved json: ", request.get_json())
