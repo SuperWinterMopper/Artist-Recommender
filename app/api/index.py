@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from .artist_dataset import statData 
-from .modules import test, dummyUserData, kNN
+from .modules import test, dummyUserData, myUserData, kNN
 
 app = Flask(__name__)
 
@@ -11,7 +11,8 @@ def get_incomes():
         { 'description': 'salary', 'amount': num }
     ]
 
-    userData = dummyUserData()
+    # userData = dummyUserData()
+    userData = myUserData()
     recs = kNN(userData)
     print("=========================================================================")    
     print("Recommendation artists:")
