@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# pycache
+/__pycache__
+
 # next.js
 /.next/
 /out/

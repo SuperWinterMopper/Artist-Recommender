@@ -1,16 +1,17 @@
 import pandas as pd
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
+from sklearn.preprocessing import minmax_scale
 import random, string
 
 # Hyperparameters and other parameters
 questionNum = 50    # number of questions user will get asks, corresponds to the dimension of the vectors we will conduct k-NN on 
 demographicsNum = 2 # number of demographics
-TopArtistNum = 1000 # the top `TopArtistNum` most popular artists will be observed as possible recommendations
+TopArtistNum = 5000 # the top `TopArtistNum` most popular artists will be observed as possible recommendations
 ageWeight = 1
 genderWeight = 1
 numRetArtists = 10
-k = 30
+k = 200
 
 # min and max for age to scale our user's data appropriately
 ageMin = 1.0
@@ -51,11 +52,19 @@ def find_top_artists(distances, indices, WHOLE_NO_ID: pd.DataFrame) -> pd.DataFr
     SCALED = WHOLE_NO_ID.iloc[indices].mul(weights, axis=0)
 
     SUMMED = SCALED.sum(axis=0)
-    rec_artists = SUMMED.iloc[demographicsNum + questionNum:].nlargest(numRetArtists).index.tolist()
+    artist_scores = SUMMED.iloc[demographicsNum + questionNum:]
+    top_scores = artist_scores.nlargest(numRetArtists)  # Series indexed by artist_name
+    rec_artists = top_scores.index.tolist()
 
     ARTISTS = pd.read_csv('preprocessing/all_artists_considered.csv')
 
-    ret = ARTISTS[ARTISTS["artist_name"].isin(rec_artists)]
+    ARTISTS_indexed = ARTISTS.set_index("artist_name")
+    available = [a for a in rec_artists if a in ARTISTS_indexed.index]
+    ret = ARTISTS_indexed.loc[available].reset_index()
+
+    ret.insert(0, "placement", range(1, len(ret) + 1))
+    ret["match_score"] = top_scores.loc[ret["artist_name"]].values
+    ret["match_score"] = minmax_scale(ret["match_score"].astype(float))    
     return ret
 
 def kNN(user: dict[str, str]) -> dict:
@@ -75,7 +84,8 @@ def kNN(user: dict[str, str]) -> dict:
     USER_NO_ID = USER.drop('user_id', axis=1)
     WHOLE_NO_ID = WHOLE.drop("user_id", axis=1)
 
-    model = NearestNeighbors(n_neighbors=k, metric='minkowski')
+    model = NearestNeighbors(n_neighbors=k, metric='cosine')
+
     model.fit(TOPQ_NO_ID)
 
     distances, indices = model.kneighbors(USER_NO_ID)
@@ -90,7 +100,7 @@ def test():
     return 658
 
 def dummyUserData():
-    values = [0, 0.25, 0.5, 0.75, 1.0]
+    values = [0, .5, 1]
     user = {
         "user_id": "0000ef373bbn0d89ce796abae961f2705e8c1faf",
         "gender": 'm',
@@ -153,54 +163,54 @@ def myUserData():
         "user_id": "0000ef373bbn0d89ce796abae961f2705e8c1faf",
         "gender": 'm',
         "age": 25,
-        "the beatles": .5,
+        "the beatles": 0.5,
         "radiohead": 1.0,
+        "linkin park": 0,
         "coldplay": 0,
         "muse": 1.0,
-        "metallica": 1.0,
         "pink floyd": 1.0,
-        "linkin park": 0,
-        "in flames": 0,
-        "red hot chili peppers": .5,
+        "metallica": 1.0,
         "nine inch nails": 1,
-        "system of a down": 1.0,
-        "placebo": 0,
-        "death cab for cutie": 0,
         "depeche mode": 0,
-        "iron maiden": 1,
-        "nirvana": .5,
-        "the killers": 0.0,
-        "nightwish": 1.0,
+        "christina aguilera": 0,
+        "lil wayne": 0,
+        "system of a down": 1.0,
+        "red hot chili peppers": 0.5,
+        "placebo": 0,
+        "in flames": 0,
+        "death cab for cutie": 0,
         "rammstein": 1,
-        "arctic monkeys": .5,
+        "rise against": 0,
         "bob dylan": 1.0,
+        "the killers": 0.0,
+        "arctic monkeys": 0.5,
+        "afi": 0,
+        "nirvana": 0.5,
         "led zeppelin": 1.0,
+        "koЯn": 0.5,
+        "garbage": 0,
+        "iron maiden": 1,
         "green day": 0,
+        "nightwish": 1.0,
         "the cure": 0.0,
-        "sigur rós": 1.0,
-        "blink-182": 0,
-        "queen": 1.0,
-        "oasis": .5,
-        "u2": .5,
-        "tool": 1.0,
-        "foo fighters": 0.0,
-        "fall out boy": 0.0,
-        "koЯn": .5,
-        "björk": 1,
+        "kanye west": 0,
+        "the smashing pumpkins": 0.5,
         "david bowie": 1.0,
-        "jack johnson": .5,
+        "ac/dc": 0,
+        "queen": 1.0,
+        "björk": 1,
+        "daft punk": 1.0,
+        "jack johnson": 0.5,
+        "sigur rós": 1.0,
+        "tom waits": 1.0,
+        "u2": 0.5,
+        "tool": 1.0,
+        "böhse onkelz": 0,
         "britney spears": 0.0,
         "elliott smith": 0.0,
-        "the smashing pumpkins": .5,
-        "rise against": 0,
         "madonna": 0.0,
-        "sufjan stevens": .5,
-        "kanye west": 0,
-        "daft punk": 1.0,
-        "disturbed": 1.0,
-        "queens of the stone age": .5,
-        "tom waits": 1.0,
-        "modest mouse": .0,
-        "the rolling stones": 0,
-        "the offspring": 0
+        "the prodigy": 0,
+        "oasis": 0.5,
+        "queens of the stone age": 0.5,
+        "boards of canada": 1.0
     }
