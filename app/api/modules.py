@@ -10,13 +10,14 @@ TopArtistNum = 1000 # the top `TopArtistNum` most popular artists will be observ
 ageWeight = 1
 genderWeight = 1
 numRetArtists = 10
+k = 30
 
 # min and max for age to scale our user's data appropriately
 ageMin = 1.0
 ageMax = 109.0
 
 def preprocess_USER(user: dict) -> pd.DataFrame:
-    USER = pd.DataFrame(user)
+    USER = pd.DataFrame([user])
     assert(USER['gender'].iloc[0] in ['m', 'f', 'other'])
 
     USER_age = USER['age']
@@ -32,8 +33,8 @@ def preprocess_USER(user: dict) -> pd.DataFrame:
 
 def preprocess_DATA() -> tuple[pd.DataFrame, pd.DataFrame]:
     # read in data
-    TOPQ = pd.read_csv('../../preprocessing/data_vectors_topQ.csv')
-    WHOLE = pd.read_csv('../../preprocessing/data_vectors_whole.csv')
+    TOPQ = pd.read_csv('preprocessing/data_vectors_topQ.csv')
+    WHOLE = pd.read_csv('preprocessing/data_vectors_whole.csv')
 
     # scale both USER and TOPQ data's demographic data
     TOPQ['gender'] *= genderWeight
@@ -44,16 +45,15 @@ def preprocess_DATA() -> tuple[pd.DataFrame, pd.DataFrame]:
 
     return TOPQ, WHOLE
 
-def find_top_artists(distances, WHOLE_NO_ID: pd.DataFrame) -> pd.DataFrame:
-
+def find_top_artists(distances, indices, WHOLE_NO_ID: pd.DataFrame) -> pd.DataFrame:
     weights = 1 / (distances + 1e-9)   
     weights = weights / weights.sum()  # normalize
-    SCALED = WHOLE_NO_ID.mul(weights, axis=0)
+    SCALED = WHOLE_NO_ID.iloc[indices].mul(weights, axis=0)
 
     SUMMED = SCALED.sum(axis=0)
     rec_artists = SUMMED.iloc[demographicsNum + questionNum:].nlargest(numRetArtists).index.tolist()
 
-    ARTISTS = pd.read_csv('../../preprocessing/all_artists_considered.csv')
+    ARTISTS = pd.read_csv('preprocessing/all_artists_considered.csv')
 
     ret = ARTISTS[ARTISTS["artist_name"].isin(rec_artists)]
     return ret
@@ -75,14 +75,14 @@ def kNN(user: dict[str, str]) -> dict:
     USER_NO_ID = USER.drop('user_id', axis=1)
     WHOLE_NO_ID = WHOLE.drop("user_id", axis=1)
 
-    model = NearestNeighbors(n_neighbors=len(TOPQ_NO_ID), metric='euclidean')
+    model = NearestNeighbors(n_neighbors=k, metric='minkowski')
     model.fit(TOPQ_NO_ID)
 
-    distances, _ = model.kneighbors(USER_NO_ID)
+    distances, indices = model.kneighbors(USER_NO_ID)
 
-    assert(len(distances[1]) == len(TOPQ) == len(WHOLE))
+    assert(len(distances[0]) == k == len(indices[0]))
 
-    ARTISTS = find_top_artists(distances[1], WHOLE_NO_ID)
+    ARTISTS = find_top_artists(distances[0], indices[0], WHOLE_NO_ID)
 
     return ARTISTS.to_dict()
 
@@ -93,7 +93,7 @@ def dummyUserData():
     values = [0, 0.25, 0.5, 0.75, 1.0]
     user = {
         "user_id": "0000ef373bbn0d89ce796abae961f2705e8c1faf",
-        "gender": 0,
+        "gender": 'm',
         "age": 25,
         "the beatles": random.choice(values),
         "radiohead": random.choice(values),

@@ -11,10 +11,11 @@ def get_incomes():
         { 'description': 'salary', 'amount': num }
     ]
 
-    # userData = dummyUserData()
-    # recs = kNN(userData)
-    # print("Recommendation artists:")
-    # print(recs)
+    userData = dummyUserData()
+    recs = kNN(userData)
+    print("=========================================================================")    
+    print("Recommendation artists:")
+    print(recs)
 
     print("CALLED API")
     return jsonify(incomes)
