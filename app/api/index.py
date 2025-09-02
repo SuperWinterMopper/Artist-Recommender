@@ -1,13 +1,21 @@
 from flask import Flask, jsonify, request
-from artist_dataset import statData 
+from .artist_dataset import statData 
+from .modules import test, dummyUserData, kNN
 
 app = Flask(__name__)
 
 @app.route('/flask/incomes')
 def get_incomes():
+    num = test()
     incomes = [
-        { 'description': 'salary', 'amount': 2000 }
+        { 'description': 'salary', 'amount': num }
     ]
+
+    # userData = dummyUserData()
+    # recs = kNN(userData)
+    # print("Recommendation artists:")
+    # print(recs)
+
     print("CALLED API")
     return jsonify(incomes)
 
@@ -24,7 +32,7 @@ def processRatings():
     print("Recieved json: ", request.get_json())
     return jsonify({'status': 'success'})
 
-@app.router('/flask/stats')
+@app.route('/flask/stats')
 def getStats():
     """
     Returns arbitrarily large number of artist recs and arbitrary number of other stats based on user's ratings provided in '/flask/ratings'. \n
@@ -45,7 +53,7 @@ def getStats():
     """
     return jsonify(statData)
 
-@app.router('/flask/gemeni')
+@app.route('/flask/gemeni')
 def getGemeniImpression():
     """
     Returns a resopnse of Google Gemeni to the user's tastes. Returns json of the format:
