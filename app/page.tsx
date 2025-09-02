@@ -5,59 +5,48 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import type { Question, Rating } from "./interfaces/interfaces"
 
-interface Artist {
-  id: number
-  name: string
-  genres: string[]
-  image: string
-}
-
-interface Rating {
-  value: string
-  label: string
-  color: string
-}
-
-const artists: Artist[] = [
+const artists: Question[] = [
   {
     id: 1,
-    name: "Taylor Swift",
-    genres: ["Pop", "Country", "Folk"],
-    image: "/portrait-of-a-musician.png",
+    artist_name: "Taylor Swift",
+    artist_genres: ["Pop", "Country", "Folk"],
+    artist_image: "/portrait-of-a-musician.png",
   },
   {
     id: 2,
-    name: "Kendrick Lamar",
-    genres: ["Hip Hop", "Rap", "Jazz"],
-    image: "/kendrick-lamar-portrait.png",
+    artist_name: "Kendrick Lamar",
+    artist_genres: ["Hip Hop", "Rap", "Jazz"],
+    artist_image: "/kendrick-lamar-portrait.png",
   },
   {
     id: 3,
-    name: "Billie Eilish",
-    genres: ["Alternative", "Pop", "Electronic"],
-    image: "/billie-eilish-portrait.png",
+    artist_name: "Billie Eilish",
+    artist_genres: ["Alternative", "Pop", "Electronic"],
+    artist_image: "/billie-eilish-portrait.png",
   },
   {
     id: 4,
-    name: "The Weeknd",
-    genres: ["R&B", "Pop", "Electronic"],
-    image: "/the-weeknd-portrait.png",
+    artist_name: "The Weeknd",
+    artist_genres: ["R&B", "Pop", "Electronic"],
+    artist_image: "/the-weeknd-portrait.png",
   },
   {
     id: 5,
-    name: "Dua Lipa",
-    genres: ["Pop", "Dance", "Electronic"],
-    image: "/dua-lipa-portrait.png",
+    artist_name: "Dua Lipa",
+    artist_genres: ["Pop", "Dance", "Electronic"],
+    artist_image: "/dua-lipa-portrait.png",
   },
+
 ]
 
 const ratings: Rating[] = [
-  { value: "love", label: "Love them", color: "bg-accent hover:bg-accent/90" },
-  { value: "like", label: "Like them", color: "bg-primary hover:bg-primary/90" },
-  { value: "tolerate", label: "Tolerate them", color: "bg-muted hover:bg-muted/90" },
-  { value: "dislike", label: "Dislike them", color: "bg-secondary hover:bg-secondary/90" },
-  { value: "hate", label: "Hate them", color: "bg-destructive hover:bg-destructive/90" },
+  { value: "1.0", label: "Love them", color: "bg-accent hover:bg-accent/90" },
+  { value: ".75", label: "Like them", color: "bg-primary hover:bg-primary/90" },
+  { value: ".5", label: "Tolerate them", color: "bg-muted hover:bg-muted/90" },
+  { value: ".25", label: "Dislike them", color: "bg-secondary hover:bg-secondary/90" },
+  { value: "0.0", label: "Hate them", color: "bg-destructive hover:bg-destructive/90" },
 ]
 
 export default function MusicQuestionnaire() {
@@ -125,16 +114,16 @@ export default function MusicQuestionnaire() {
           <div className="text-center mb-8">
             <div className="relative w-48 h-48 mx-auto mb-6 rounded-lg overflow-hidden">
               <img
-                src={currentArtist.image || "/placeholder.svg"}
-                alt={currentArtist.name}
+                src={currentArtist.artist_image || "/placeholder.svg"}
+                alt={currentArtist.artist_name}
                 className="w-full h-full object-cover"
               />
             </div>
 
-            <h1 className="text-3xl font-bold mb-4 text-balance">{currentArtist.name}</h1>
+            <h1 className="text-3xl font-bold mb-4 text-balance">{currentArtist.artist_name}</h1>
 
             <div className="flex flex-wrap gap-2 justify-center mb-8">
-              {currentArtist.genres.map((genre) => (
+              {currentArtist.artist_genres.map((genre) => (
                 <Badge key={genre} variant="secondary" className="text-sm">
                   {genre}
                 </Badge>
