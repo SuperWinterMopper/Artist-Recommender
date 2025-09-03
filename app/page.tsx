@@ -1,13 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import type { Question, Rating } from "./interfaces/interfaces"
+import type { ArtistCSVRow, Question, Rating } from "./constants/interfaces"
+import useAllArtists from "./hooks/useArtistData"
+import { numQuestions } from "./constants/constants"
 
-const artists: Question[] = [
+const questions: Question[] = [
   {
     id: 1,
     artist_name: "Taylor Swift",
@@ -38,7 +40,6 @@ const artists: Question[] = [
     artist_genres: ["Pop", "Dance", "Electronic"],
     artist_image: "/dua-lipa-portrait.png",
   },
-
 ]
 
 const ratings: Rating[] = [
@@ -50,6 +51,7 @@ const ratings: Rating[] = [
 ]
 
 export default function MusicQuestionnaire() {
+  // const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [responses, setResponses] = useState<Record<number, string>>({})
   const [isComplete, setIsComplete] = useState(false)
@@ -57,7 +59,7 @@ export default function MusicQuestionnaire() {
   const handleRating = (artistId: number, rating: string) => {
     setResponses((prev) => ({ ...prev, [artistId]: rating }))
 
-    if (currentQuestion < artists.length - 1) {
+    if (currentQuestion < questions.length - 1) {
       setTimeout(() => {
         setCurrentQuestion((prev) => prev + 1)
       }, 300)
@@ -74,7 +76,18 @@ export default function MusicQuestionnaire() {
     setIsComplete(false)
   }
 
-  const progress = ((currentQuestion + 1) / artists.length) * 100
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      const q = await useAllArtists();
+
+      console.log(`useAllArtists returns`, q[0]);
+      console.log(`useAllArtists returns`, q[1]);
+      console.log(`useAllArtists returns`, q[2]);
+    }
+    fetchQuestions()
+  }, [])
+
+  const progress = ((currentQuestion) / questions.length) * 100
 
   if (isComplete) {
     return (
@@ -83,7 +96,7 @@ export default function MusicQuestionnaire() {
           <CardContent className="p-8 text-center">
             <h1 className="text-2xl font-bold mb-4">Questionnaire Complete!</h1>
             <p className="text-muted-foreground mb-6">
-              Thank you for rating {artists.length} artists. Your responses have been recorded.
+              Thank you for rating {questions.length} artists. Your responses have been recorded.
             </p>
             <Button onClick={resetQuestionnaire} className="w-full">
               Take Again
@@ -94,7 +107,7 @@ export default function MusicQuestionnaire() {
     )
   }
 
-  const currentArtist = artists[currentQuestion]
+  const currentArtist = questions[currentQuestion]
   const selectedRating = responses[currentArtist.id]
 
   return (
@@ -102,7 +115,7 @@ export default function MusicQuestionnaire() {
       <div className="w-full max-w-lg mb-6">
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm text-muted-foreground">
-            Question {currentQuestion + 1} of {artists.length}
+            Question {currentQuestion + 1} of {questions.length}
           </span>
           <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
         </div>
