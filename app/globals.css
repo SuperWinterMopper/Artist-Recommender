@@ -122,10 +122,10 @@
   }
   body {
     @apply bg-background text-foreground font-sans;
-    /* Added subtle orange geometric background pattern */
-    background-image: radial-gradient(circle at 20% 80%, rgba(255, 165, 0, 0.03) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(255, 140, 0, 0.02) 0%, transparent 50%),
-      linear-gradient(135deg, transparent 0%, rgba(255, 165, 0, 0.01) 50%, transparent 100%);
+    /* Added subtle orange geometric background pattern (tinted stronger) */
+    background-image: radial-gradient(circle at 20% 80%, rgba(255, 165, 0, 0.05) 0%, transparent 45%),
+      radial-gradient(circle at 80% 20%, rgba(255, 140, 0, 0.04) 0%, transparent 45%),
+      linear-gradient(135deg, transparent 0%, rgba(255, 165, 0, 0.02) 40%, transparent 100%);
   }
 
   /* Added subtle animated background elements */
@@ -139,21 +139,22 @@
     background: linear-gradient(
         45deg,
         transparent 48%,
-        rgba(255, 165, 0, 0.005) 49%,
-        rgba(255, 165, 0, 0.005) 51%,
+        rgba(255, 165, 0, 0.01) 49%,
+        rgba(255, 165, 0, 0.01) 51%,
         transparent 52%
       ),
       linear-gradient(
         -45deg,
         transparent 48%,
-        rgba(255, 140, 0, 0.003) 49%,
-        rgba(255, 140, 0, 0.003) 51%,
+        rgba(255, 140, 0, 0.008) 49%,
+        rgba(255, 140, 0, 0.008) 51%,
         transparent 52%
-      );
-    background-size: 60px 60px, 80px 80px;
+      ),
+      repeating-linear-gradient(135deg, rgba(255,165,0,0.015) 0 2px, transparent 2px 8px);
+    background-size: 60px 60px, 80px 80px, 300px 300px;
     pointer-events: none;
     z-index: -1;
-    animation: subtle-move 20s ease-in-out infinite;
+    animation: subtle-move 25s ease-in-out infinite;
   }
 
   @keyframes subtle-move {

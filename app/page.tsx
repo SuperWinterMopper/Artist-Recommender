@@ -38,23 +38,26 @@ export default function MusicQuestionnaire() {
   }
 
   const handleRating = (artistId: number, rating: string) => {
+    // Save selection only; do not auto-advance so the selected color persists
     setResponses((prev) => ({ ...prev, [artistId]: rating }))
-
-    if (currentQuestion < questions.length - 1) {
-      setTimeout(() => {
-        setCurrentQuestion((prev) => prev + 1)
-      }, 300)
-    } else {
-      setTimeout(() => {
-        setIsComplete(true)
-      }, 300)
-    }
   }
 
   const resetQuestionnaire = () => {
     setCurrentQuestion(0)
     setResponses({})
     setIsComplete(false)
+  }
+
+  const goPrev = () => {
+    setCurrentQuestion((q) => Math.max(0, q - 1))
+  }
+
+  const goNext = () => {
+    setCurrentQuestion((q) => {
+      if (q < questions.length - 1) return q + 1
+      setIsComplete(true)
+      return q
+    })
   }
 
   const progress = ((currentQuestion) / questions.length) * 100
@@ -115,20 +118,54 @@ export default function MusicQuestionnaire() {
           </div>
 
           <div className="space-y-3">
-            {ratings.map((rating) => (
-              <Button
-                key={rating.value}
-                onClick={() => handleRating(currentArtist.id, rating.value)}
-                className={`w-full h-12 text-base font-medium transition-all duration-300 ${
-                  selectedRating === rating.value
-                    ? rating.color + " scale-105"
-                    : "bg-card hover:bg-orange-500 hover:text-white border border-border hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/20"
-                }`}
-                variant={selectedRating === rating.value ? "default" : "outline"}
-              >
-                {rating.label}
+            <p className="text-center text-muted-foreground mb-4">How do you feel about this artist?</p>
+            {ratings.map((rating) => {
+              // map each rating to its active and hover classes (green -> red)
+              const activeCls = rating.value === "1.0"
+                ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                : rating.value === ".75"
+                ? "bg-lime-400 hover:bg-lime-500 text-black"
+                : rating.value === ".5"
+                ? "bg-yellow-400 hover:bg-yellow-500 text-black"
+                : rating.value === ".25"
+                ? "bg-orange-400 hover:bg-orange-500 text-black"
+                : "bg-red-500 hover:bg-red-600 text-white";
+
+              const hoverOnly = rating.value === "1.0"
+                ? "hover:bg-emerald-500 hover:text-white"
+                : rating.value === ".75"
+                ? "hover:bg-lime-500 hover:text-black"
+                : rating.value === ".5"
+                ? "hover:bg-yellow-500 hover:text-black"
+                : rating.value === ".25"
+                ? "hover:bg-orange-500 hover:text-black"
+                : "hover:bg-red-600 hover:text-white";
+
+              const base = "w-full h-14 text-base font-medium transition-all duration-300 border border-border";
+
+              const className = selectedRating === rating.value
+                ? `${base} ${activeCls} scale-105`
+                : `${base} bg-card text-foreground ${hoverOnly}`;
+
+              return (
+                <Button
+                  key={rating.value}
+                  onClick={() => handleRating(currentArtist.id, rating.value)}
+                  className={className}
+                >
+                  {rating.label}
+                </Button>
+              );
+            })}
+
+            <div className="mt-6 flex items-center justify-between gap-3">
+              <Button onClick={goPrev} disabled={currentQuestion === 0} variant="outline">
+                Back
               </Button>
-            ))}
+              <Button onClick={goNext} variant="secondary" disabled={!selectedRating}>
+                {currentQuestion < questions.length - 1 ? "Next" : "Finish"}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
