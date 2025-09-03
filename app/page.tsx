@@ -5,42 +5,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import type { ArtistCSVRow, Question, Rating } from "./constants/interfaces"
-import useAllArtists from "./hooks/useArtistData"
-import { numQuestions } from "./constants/constants"
+import type { Question, Rating } from "./constants/interfaces"
+import useQuestionArtistNames from "./hooks/useQuestionArtistNames"
+import useSpotifyMap from "./hooks/useSpotifyMap"
 
-const questions: Question[] = [
-  {
-    id: 1,
-    artist_name: "Taylor Swift",
-    artist_genres: ["Pop", "Country", "Folk"],
-    artist_image: "/portrait-of-a-musician.png",
-  },
-  {
-    id: 2,
-    artist_name: "Kendrick Lamar",
-    artist_genres: ["Hip Hop", "Rap", "Jazz"],
-    artist_image: "/kendrick-lamar-portrait.png",
-  },
-  {
-    id: 3,
-    artist_name: "Billie Eilish",
-    artist_genres: ["Alternative", "Pop", "Electronic"],
-    artist_image: "/billie-eilish-portrait.png",
-  },
-  {
-    id: 4,
-    artist_name: "The Weeknd",
-    artist_genres: ["R&B", "Pop", "Electronic"],
-    artist_image: "/the-weeknd-portrait.png",
-  },
-  {
-    id: 5,
-    artist_name: "Dua Lipa",
-    artist_genres: ["Pop", "Dance", "Electronic"],
-    artist_image: "/dua-lipa-portrait.png",
-  },
-]
 
 const ratings: Rating[] = [
   { value: "1.0", label: "Love them", color: "bg-accent hover:bg-accent/90" },
@@ -51,10 +19,23 @@ const ratings: Rating[] = [
 ]
 
 export default function MusicQuestionnaire() {
-  // const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [responses, setResponses] = useState<Record<number, string>>({})
   const [isComplete, setIsComplete] = useState(false)
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      const artistNames: string[] = await useQuestionArtistNames();
+      const q: Question[] = await useSpotifyMap(artistNames);
+      setQuestions(q);
+    }
+    fetchQuestions();
+  }, [])
+
+  if (questions.length == 0) {
+    return <div>Nothing</div>
+  }
 
   const handleRating = (artistId: number, rating: string) => {
     setResponses((prev) => ({ ...prev, [artistId]: rating }))
@@ -75,17 +56,6 @@ export default function MusicQuestionnaire() {
     setResponses({})
     setIsComplete(false)
   }
-
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      const q = await useAllArtists();
-
-      console.log(`useAllArtists returns`, q[0]);
-      console.log(`useAllArtists returns`, q[1]);
-      console.log(`useAllArtists returns`, q[2]);
-    }
-    fetchQuestions()
-  }, [])
 
   const progress = ((currentQuestion) / questions.length) * 100
 
@@ -145,7 +115,6 @@ export default function MusicQuestionnaire() {
           </div>
 
           <div className="space-y-3">
-            <p className="text-center text-muted-foreground mb-4">How do you feel about this artist?</p>
             {ratings.map((rating) => (
               <Button
                 key={rating.value}
