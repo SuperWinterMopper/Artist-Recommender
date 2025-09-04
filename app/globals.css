@@ -75,8 +75,8 @@
 }
 
 @theme inline {
-  /* Updated font to use Orbitron for angular, box-like typography */
-  --font-sans: "Orbitron", var(--font-geist-sans);
+  /* Updated font to use JetBrains Mono as the primary UI font */
+  --font-sans: var(--font-jetbrains);
   --font-mono: var(--font-geist-mono);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -121,7 +121,11 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground;
+    /* ensure JetBrains Mono is used as the primary font */
+    font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+      Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji",
+      "Segoe UI Symbol";
     /* Added subtle orange geometric background pattern (tinted stronger) */
     background-image: radial-gradient(circle at 20% 80%, rgba(255, 165, 0, 0.05) 0%, transparent 45%),
       radial-gradient(circle at 80% 20%, rgba(255, 140, 0, 0.04) 0%, transparent 45%),

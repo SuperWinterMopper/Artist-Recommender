@@ -56,7 +56,7 @@ def find_top_artists(distances, indices, WHOLE_NO_ID: pd.DataFrame) -> pd.DataFr
     top_scores = artist_scores.nlargest(numRetArtists)  # Series indexed by artist_name
     rec_artists = top_scores.index.tolist()
 
-    ARTISTS = pd.read_csv('preprocessing/all_artists_considered.csv')
+    ARTISTS = pd.read_csv('public/all_artists_considered.csv')
 
     ARTISTS_indexed = ARTISTS.set_index("artist_name")
     available = [a for a in rec_artists if a in ARTISTS_indexed.index]
@@ -67,9 +67,12 @@ def find_top_artists(distances, indices, WHOLE_NO_ID: pd.DataFrame) -> pd.DataFr
     ret["match_score"] = minmax_scale(ret["match_score"].astype(float))    
     return ret
 
-def kNN(user: dict[str, str]) -> dict:
-    TOPQ, WHOLE = preprocess_DATA()
-    USER = preprocess_USER(user)
+def validateDataFrames(TOPQ: pd.DataFrame, WHOLE: pd.DataFrame, USER: pd.DataFrame):
+    tc = TOPQ.columns.tolist()
+    uc = USER.columns.tolist()
+    for i in range(min(len(tc), len(uc))):
+        if tc[i] != uc[i]:
+            print(f"==============NOT SAME: {tc[i]}, {uc[i]}==============")
 
     assert(len(USER) == 1)
     assert(len(TOPQ.columns) == questionNum + demographicsNum + 1) # + 1 for user_id
@@ -79,6 +82,13 @@ def kNN(user: dict[str, str]) -> dict:
     assert(TOPQ.columns[2] == USER.columns[2] == 'age')
     assert(WHOLE.columns[0:questionNum + demographicsNum + 1].tolist() == TOPQ.columns.tolist())
     assert(len(TOPQ) == len(WHOLE))
+
+
+def kNN(user: dict[str, str]) -> dict:
+    TOPQ, WHOLE = preprocess_DATA()
+    USER = preprocess_USER(user)
+
+    validateDataFrames(TOPQ, WHOLE, USER)
 
     TOPQ_NO_ID = TOPQ.drop('user_id', axis=1)
     USER_NO_ID = USER.drop('user_id', axis=1)

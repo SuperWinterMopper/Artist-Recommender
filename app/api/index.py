@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, request
-from .artist_dataset import statData 
 from .modules import test, dummyUserData, myUserData, kNN
 
 app = Flask(__name__)
@@ -11,7 +10,6 @@ def get_incomes():
         { 'description': 'salary', 'amount': num }
     ]
 
-    # userData = dummyUserData()
     userData = myUserData()
     recs = kNN(userData)
     print("=========================================================================")    
@@ -31,8 +29,9 @@ def processRatings():
     }
     and applies processes them. 
     """
-    print("Recieved json: ", request.get_json())
-    return jsonify({'status': 'success'})
+    userResponses = request.get_json()
+    print("Recieved json: ", userResponses)
+    return jsonify(kNN(userResponses))
 
 @app.route('/flask/stats')
 def getStats():
@@ -53,7 +52,7 @@ def getStats():
             }
     } 
     """
-    return jsonify(statData)
+    return jsonify({'status': 'success'})
 
 @app.route('/flask/gemeni')
 def getGemeniImpression():

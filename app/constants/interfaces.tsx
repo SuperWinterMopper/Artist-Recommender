@@ -6,9 +6,8 @@ export interface Question {
 }
 
 export interface Rating {
-  value: string
+  value: number
   label: string
-  color: string
 }
 
 export interface ArtistCSVRow {
