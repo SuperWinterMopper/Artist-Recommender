@@ -11,8 +11,13 @@ export interface Rating {
 }
 
 export interface ArtistCSVRow {
-    index: number
-    artist_name: string
-    plays: number
-    artist_id: string
+  index: number
+  artist_name: string
+  plays: number
+  artist_id: string
+}
+
+export interface ReccomendedArtist {
+  artist_name: string,
+  match_score: number
 }

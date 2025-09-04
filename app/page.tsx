@@ -6,11 +6,14 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { useRouter } from "next/navigation"
-import type { Question, Rating } from "./constants/interfaces"
+import type { Question, Rating, ReccomendedArtist } from "./constants/interfaces"
 import useQuestionArtistNames from "./hooks/useQuestionArtistNames"
 import useSpotifyMap from "./hooks/useSpotifyMap"
 import useSubmit from "./hooks/useSubmit"
-import { numQuestions } from "./constants/constants"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import Recommendations from "./recommendations"
 
 
 const ratings: Rating[] = [
@@ -26,7 +29,11 @@ export default function MusicQuestionnaire() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [responses, setResponses] = useState<Record<string, number>>({})
   const [isComplete, setIsComplete] = useState(false)
+  const [showDemographics, setShowDemographics] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [gender, setGender] = useState<string>("") 
+  const [age, setAge] = useState<number | "">("")
+  const [result, setResult] = useState<ReccomendedArtist[] | null>(null);
 
   const router = useRouter();
   const advanceTimerRef = useRef<number | null>(null);
@@ -37,31 +44,27 @@ export default function MusicQuestionnaire() {
       const q: Question[] = await useSpotifyMap(artistNames);
       setQuestions(q);
     }
-    // fetchQuestions();
+    fetchQuestions();
 
     const testSubmit = async () => {
       const dummyRatings: Rating[] = [{'label': 'The Beatles', 'value': 1}, {'label': 'Radiohead', 'value': 1}, {'label': 'Linkin Park', 'value': 1}, {'label': 'Coldplay', 'value': 1}, {'label': 'Muse', 'value': 1}, {'label': 'Pink Floyd', 'value': 1}, {'label': 'Metallica', 'value': 1}, {'label': 'Nine Inch Nails', 'value': 1}, {'label': 'Depeche Mode', 'value': 1}, {'label': 'Christina Aguilera', 'value': 1}, {'label': 'Lil Wayne', 'value': 1}, {'label': 'System Of A Down', 'value': 1}, {'label': 'Red Hot Chili Peppers', 'value': 1}, {'label': 'Placebo', 'value': 1}, {'label': 'In Flames', 'value': 1}, {'label': 'Death Cab for Cutie', 'value': 1}, {'label': 'Rammstein', 'value': 1}, {'label': 'Rise Against', 'value': 1}, {'label': 'Bob Dylan', 'value': 1}, {'label': 'The Killers', 'value': 1}, {'label': 'Arctic Monkeys', 'value': 1}, {'label': 'AFI', 'value': 1}, {'label': 'Nirvana', 'value': 1}, {'label': 'Led Zeppelin', 'value': 1}, {'label': 'Korn', 'value': 1}, {'label': 'Garbage', 'value': 1}, {'label': 'Iron Maiden', 'value': 1}, {'label': 'Green Day', 'value': 1}, {'label': 'Nightwish', 'value': 1}, {'label': 'The Cure', 'value': 1}, {'label': 'Kanye West', 'value': 1}, {'label': 'The Smashing Pumpkins', 'value': 1}, {'label': 'David Bowie', 'value': 1}, {'label': 'AC/DC', 'value': 1}, {'label': 'Queen', 'value': 1}, {'label': 'Björk', 'value': 1}, {'label': 'Daft Punk', 'value': 1}, {'label': 'Jack Johnson', 'value': 1}, {'label': 'Sigur Rós', 'value': 1}, {'label': 'Tom Waits', 'value': 1}, {'label': 'U2', 'value': 1}, {'label': 'TOOL', 'value': 1}, {'label': 'Böhse Onkelz', 'value': 1}, {'label': 'Britney Spears', 'value': 1}, {'label': 'Elliott Smith', 'value': 1}, {'label': 'Madonna', 'value': 1}, {'label': 'The Prodigy', 'value': 1}, {'label': 'Oasis', 'value': 1}, {'label': 'Queens of the Stone Age', 'value': 1}, {'label': 'Boards of Canada', 'value': 1}]
 
-      const x = await useSubmit("m", 30, dummyRatings); 
-      console.log("useSubmit(dummyRatings) has returned with ", x);
+      const recs: ReccomendedArtist[] = await useSubmit("m", 30, dummyRatings); 
+      console.log("useSubmit(dummyRatings) has returned with ", recs);
     }
-    testSubmit();
+    // testSubmit();
 
   }, []);
 
   useEffect(() => {
-    if (!isComplete) return;
-
-    // avoid calling twice
+    if (!isComplete || !showDemographics) return;
     if (isSubmitting) return;
 
     const submit = async () => {
       setIsSubmitting(true);
 
-      // convert responses Record<number, number> to array with artist names instead of IDs
       const ratingsArray = Object.entries(responses).map(([artistIdStr, rating]) => {
         const artistId = Number(artistIdStr);
-        // lookup the artist name from questions array
         const artistName = questions.find(q => q.id === artistId)?.artist_name || artistIdStr;
         return {
           label: artistName, 
@@ -70,18 +73,51 @@ export default function MusicQuestionnaire() {
       });
 
       try {
-        // await useSubmit(ratingsArray); 
+        // Use the user-entered gender and age values
+        const recs: ReccomendedArtist[] = await useSubmit(gender, Number(age), ratingsArray);
+        setResult(recs);
         // router.push("/results");
       } catch (err) {
         console.error("submit failed", err);
-        // optional: show UI error
       } finally {
         setIsSubmitting(false);
       }
     };
 
     submit();
-  }, [isComplete, questions, responses]); // add questions to dependencies
+  }, [isComplete, showDemographics, gender, age, responses, questions]);
+
+  // useEffect(() => {
+  //   if (!isComplete) return;
+
+  //   // avoid calling twice
+  //   if (isSubmitting) return;
+
+  //   const submit = async () => {
+  //     setIsSubmitting(true);
+
+  //     const ratingsArray = Object.entries(responses).map(([artistIdStr, rating]) => {
+  //       const artistId = Number(artistIdStr);
+  //       const artistName = questions.find(q => q.id === artistId)?.artist_name || artistIdStr;
+  //       return {
+  //         label: artistName, 
+  //         value: Number(rating),
+  //       };
+  //     });
+
+  //     try {
+  //       await useSubmit("m", 30, ratingsArray); 
+  //       // router.push("/results");
+  //     } catch (err) {
+  //       console.error("submit failed", err);
+  //       // optional: show UI error
+  //     } finally {
+  //       setIsSubmitting(false);
+  //     }
+  //   };
+
+  //   submit();
+  // }, [isComplete]); 
 
   useEffect(() => () => {
     if (advanceTimerRef.current) {
@@ -106,7 +142,6 @@ export default function MusicQuestionnaire() {
           window.clearTimeout(advanceTimerRef.current);
           advanceTimerRef.current = null;
         }
-
         // schedule a single advance that calls goNext with the updated responses snapshot
         advanceTimerRef.current = window.setTimeout(() => {
           advanceTimerRef.current = null;
@@ -116,8 +151,7 @@ export default function MusicQuestionnaire() {
 
       return next
     })
-  }
-
+  }  
   const resetQuestionnaire = () => {
     setCurrentQuestion(0)
     setResponses({})
@@ -143,20 +177,82 @@ export default function MusicQuestionnaire() {
       return
     }
 
+    // Just mark the questions complete, don't show demographics yet
     setIsComplete(true)
+  }
+
+  // Add handler for demographics form submission
+  const handleDemographicsSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (gender && age !== "") {
+      setShowDemographics(true)
+    }
   }
 
   const progress = ((currentQuestion) / questions.length) * 100
 
   if (isComplete) {
+    if (!showDemographics) {
+      // Show demographics form
+      return (
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+          <Card className="w-full max-w-md border border-orange-300/20 bg-orange-50/5 shadow-sm">
+            <CardContent className="p-8">
+              <h1 className="text-2xl font-bold mb-4 text-center">Just Two More Questions</h1>
+              <p className="text-muted-foreground mb-6 text-center">
+                Please tell us a bit about yourself to help with recommendations.
+              </p>
+              
+              <form onSubmit={handleDemographicsSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="gender">Gender</Label>
+                  <Select 
+                    value={gender} 
+                    onValueChange={setGender}
+                    required
+                  >
+                    <SelectTrigger id="gender">
+                      <SelectValue placeholder="Select your gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="m">Male</SelectItem>
+                      <SelectItem value="f">Female</SelectItem>
+                      <SelectItem value="other">Other/Non-binary</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="age">Age</Label>
+                  <Input
+                    id="age"
+                    type="number"
+                    min="1"
+                    max="120"
+                    placeholder="Enter your age"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value ? parseInt(e.target.value, 10) : "")}
+                    required
+                  />
+                </div>
+                
+                <Button type="submit" className="w-full">
+                  {isSubmitting ? "Submitting..." : "Submit"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    }
+    
+    // After demographics are submitted, show completion message
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="w-full max-w-md border border-orange-300/20 bg-orange-50/5 shadow-sm">
           <CardContent className="p-8 text-center">
-            <h1 className="text-2xl font-bold mb-4">Questionnaire Complete!</h1>
-            <p className="text-muted-foreground mb-6">
-              Thank you for rating {questions.length} artists. Your responses have been recorded.
-            </p>
+            <h1 className="text-2xl font-bold mb-4">Questionnaire Complete.</h1>
+            {result ? <div><Recommendations artists={result} /></div> : null}
             <Button onClick={resetQuestionnaire} className="w-full">
               Take Again
             </Button>

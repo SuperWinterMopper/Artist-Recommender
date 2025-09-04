@@ -1,7 +1,7 @@
 import { error } from "console";
-import { Rating } from "../constants/interfaces";
+import { Rating, ReccomendedArtist } from "../constants/interfaces";
 
-export default async function useSubmit(gender: string, age: number, userResponses: Rating[]) {
+export default async function useSubmit(gender: string, age: number, userResponses: Rating[]): Promise<ReccomendedArtist[]> {
     const base = process.env.NEXT_PUBLIC_BASE_API ?? "";
 
     let input: Record<string, string | number> = { 'user_id': "qwertyuiop", 'gender': gender, 'age': age };
@@ -17,11 +17,14 @@ export default async function useSubmit(gender: string, age: number, userRespons
     });
 
     if(!response.ok) {
-        const text = await response.text();
-        throw new Error(`submitting ratings failed: ${text}`);
+        throw new Error(`submitting ratings failed: ${await response.text()}`);
     }
 
     const data = await response.json();
-
-    console.log("recs: ", data);
+    // Transform the format to an array of objects
+    const artistsArray = Object.keys(data.artist_name).map(index => ({
+      artist_name: data.artist_name[index],
+      match_score: data.match_score[index]
+    }));
+    return artistsArray;
 }
