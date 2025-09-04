@@ -7,10 +7,12 @@ import useSpotifyMap from "./hooks/useSpotifyMap";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import useGeminiAnalysis from "./hooks/useGeminiAnalysis";
 
 export default function Recommendations({ artists }: { artists: ReccomendedArtist[]}) {
   const [recs, setRecs] = useState<(Question & { match_score: number })[]>([]);
   const [loading, setLoading] = useState(true);
+  const [gemeni, setGemini] = useState<string | undefined>("");
 
   useEffect(() => {
     const fetchArtists = async () => {
@@ -39,6 +41,19 @@ export default function Recommendations({ artists }: { artists: ReccomendedArtis
     fetchArtists();
   }, [artists]);
 
+  useEffect(() => {
+    if(recs.length == 0) return;
+
+    const getGeminiAnalysis = async () => {
+      const text = await useGeminiAnalysis(recs);
+      if(text != undefined) {
+        setGemini(text);
+      }
+    }
+    getGeminiAnalysis();
+
+  }, [recs])
+
   if (loading || recs.length === 0) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -57,7 +72,7 @@ export default function Recommendations({ artists }: { artists: ReccomendedArtis
         <p className="text-muted-foreground text-center mb-10">
           Our K-NN model found these artists based on your preferences!
         </p>
-        
+        {gemeni ? <p>{gemeni}</p> : ""}
         <div className="flex flex-col gap-8">
           {recs.map((artist) => (
             <Card key={artist.id} className="overflow-hidden border border-orange-300/20 bg-orange-50/5 shadow-md hover:shadow-orange-500/10 transition-all">
