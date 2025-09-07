@@ -14,13 +14,13 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Recommendations from "./recommendations"
-
+import useGeminiAnalysis from "./hooks/useGeminiAnalysis"
 
 const ratings: Rating[] = [
   { value: 1.0, label: "Love them" },
-  { value: 0.75, label: "Like them", },
-  { value: 0.5, label: "Tolerate them", },
-  { value: 0.25, label: "Dislike them", },
+  { value: 0.5, label: "Like them", },
+  { value: 0.1, label: "Tolerate them", },
+  { value: 0.001, label: "Dislike them", },
   { value: 0.0, label: "Hate them", },
 ]
 
@@ -35,7 +35,6 @@ export default function MusicQuestionnaire() {
   const [age, setAge] = useState<number | "">("")
   const [result, setResult] = useState<ReccomendedArtist[] | null>(null);
 
-  const router = useRouter();
   const advanceTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -47,10 +46,26 @@ export default function MusicQuestionnaire() {
     fetchQuestions();
 
     const testSubmit = async () => {
-      const dummyRatings: Rating[] = [{'label': 'The Beatles', 'value': 1}, {'label': 'Radiohead', 'value': 1}, {'label': 'Linkin Park', 'value': 1}, {'label': 'Coldplay', 'value': 1}, {'label': 'Muse', 'value': 1}, {'label': 'Pink Floyd', 'value': 1}, {'label': 'Metallica', 'value': 1}, {'label': 'Nine Inch Nails', 'value': 1}, {'label': 'Depeche Mode', 'value': 1}, {'label': 'Christina Aguilera', 'value': 1}, {'label': 'Lil Wayne', 'value': 1}, {'label': 'System Of A Down', 'value': 1}, {'label': 'Red Hot Chili Peppers', 'value': 1}, {'label': 'Placebo', 'value': 1}, {'label': 'In Flames', 'value': 1}, {'label': 'Death Cab for Cutie', 'value': 1}, {'label': 'Rammstein', 'value': 1}, {'label': 'Rise Against', 'value': 1}, {'label': 'Bob Dylan', 'value': 1}, {'label': 'The Killers', 'value': 1}, {'label': 'Arctic Monkeys', 'value': 1}, {'label': 'AFI', 'value': 1}, {'label': 'Nirvana', 'value': 1}, {'label': 'Led Zeppelin', 'value': 1}, {'label': 'Korn', 'value': 1}, {'label': 'Garbage', 'value': 1}, {'label': 'Iron Maiden', 'value': 1}, {'label': 'Green Day', 'value': 1}, {'label': 'Nightwish', 'value': 1}, {'label': 'The Cure', 'value': 1}, {'label': 'Kanye West', 'value': 1}, {'label': 'The Smashing Pumpkins', 'value': 1}, {'label': 'David Bowie', 'value': 1}, {'label': 'AC/DC', 'value': 1}, {'label': 'Queen', 'value': 1}, {'label': 'Björk', 'value': 1}, {'label': 'Daft Punk', 'value': 1}, {'label': 'Jack Johnson', 'value': 1}, {'label': 'Sigur Rós', 'value': 1}, {'label': 'Tom Waits', 'value': 1}, {'label': 'U2', 'value': 1}, {'label': 'TOOL', 'value': 1}, {'label': 'Böhse Onkelz', 'value': 1}, {'label': 'Britney Spears', 'value': 1}, {'label': 'Elliott Smith', 'value': 1}, {'label': 'Madonna', 'value': 1}, {'label': 'The Prodigy', 'value': 1}, {'label': 'Oasis', 'value': 1}, {'label': 'Queens of the Stone Age', 'value': 1}, {'label': 'Boards of Canada', 'value': 1}]
+      // create a names array that is all the 'label' fields in the dummyRatings array below
+      const dummyRatings: Rating[] = [{'label': 'The Beatles', 'value': .5}, {'label': 'Radiohead', 'value': 1}, {'label': 'Linkin Park', 'value': .1}, {'label': 'Coldplay', 'value': .1}, {'label': 'Muse', 'value': 1}, {'label': 'Pink Floyd', 'value': 1}, {'label': 'Metallica', 'value': .5}, {'label': 'Nine Inch Nails', 'value': .5}, {'label': 'Depeche Mode', 'value': .1}, {'label': 'Christina Aguilera', 'value': .001}, {'label': 'Lil Wayne', 'value': 0}, {'label': 'System Of A Down', 'value': .5}, {'label': 'Red Hot Chili Peppers', 'value': .1}, {'label': 'Placebo', 'value': .001}, {'label': 'In Flames', 'value': .001}, {'label': 'Death Cab for Cutie', 'value': 0}, {'label': 'Rammstein', 'value': .5}, {'label': 'Rise Against', 'value': .001}, {'label': 'Bob Dylan', 'value': 1}, {'label': 'The Killers', 'value': .1} ]
+        
+        // {'label': 'Arctic Monkeys', 'value': 1}, {'label': 'AFI', 'value': 1}, {'label': 'Nirvana', 'value': 1}, {'label': 'Led Zeppelin', 'value': 1}, {'label': 'Korn', 'value': 1}, {'label': 'Garbage', 'value': 1}, {'label': 'Iron Maiden', 'value': 1}, {'label': 'Green Day', 'value': 1}, {'label': 'Nightwish', 'value': 1}, {'label': 'The Cure', 'value': 1}, {'label': 'Kanye West', 'value': 1}, {'label': 'The Smashing Pumpkins', 'value': 1}, {'label': 'David Bowie', 'value': 1}, {'label': 'AC/DC', 'value': 1}, {'label': 'Queen', 'value': 1}, {'label': 'Björk', 'value': 1}, {'label': 'Daft Punk', 'value': 1}, {'label': 'Jack Johnson', 'value': 1}, {'label': 'Sigur Rós', 'value': 1}, {'label': 'Tom Waits', 'value': 1}, {'label': 'U2', 'value': 1}, {'label': 'TOOL', 'value': 1}, {'label': 'Böhse Onkelz', 'value': 1}, {'label': 'Britney Spears', 'value': 1}, {'label': 'Elliott Smith', 'value': 1}, {'label': 'Madonna', 'value': 1}, {'label': 'The Prodigy', 'value': 1}, {'label': 'Oasis', 'value': 1}, {'label': 'Queens of the Stone Age', 'value': 1}, {'label': 'Boards of Canada', 'value': 1}]
 
+      // const names: string[] = dummyRatings.map(x => x.label);
+      
       const recs: ReccomendedArtist[] = await useSubmit("m", 30, dummyRatings); 
       console.log("useSubmit(dummyRatings) has returned with ", recs);
+
+      const rec_names: string[] = recs.map(x => x.artist_name);
+      const qs: Question[] = await useSpotifyMap(rec_names);
+
+      const scoreMap = new Map(
+        recs.map(r => [r.artist_name.toLowerCase(), r.match_score])
+      )
+      const geminiInput: (Question & { match_score: number; })[] = qs.map(q => ({...q, match_score: scoreMap.get(q.artist_name.toLowerCase().trim()) ?? 0}))
+
+      const output: string|undefined = await useGeminiAnalysis(geminiInput); 
+      console.log("output from Google Gemini: ", output);
     }
     // testSubmit();
 
@@ -76,7 +91,7 @@ export default function MusicQuestionnaire() {
         // Use the user-entered gender and age values
         const recs: ReccomendedArtist[] = await useSubmit(gender, Number(age), ratingsArray);
         setResult(recs);
-        // router.push("/results");
+
       } catch (err) {
         console.error("submit failed", err);
       } finally {
@@ -86,38 +101,6 @@ export default function MusicQuestionnaire() {
 
     submit();
   }, [isComplete, showDemographics, gender, age, responses, questions]);
-
-  // useEffect(() => {
-  //   if (!isComplete) return;
-
-  //   // avoid calling twice
-  //   if (isSubmitting) return;
-
-  //   const submit = async () => {
-  //     setIsSubmitting(true);
-
-  //     const ratingsArray = Object.entries(responses).map(([artistIdStr, rating]) => {
-  //       const artistId = Number(artistIdStr);
-  //       const artistName = questions.find(q => q.id === artistId)?.artist_name || artistIdStr;
-  //       return {
-  //         label: artistName, 
-  //         value: Number(rating),
-  //       };
-  //     });
-
-  //     try {
-  //       await useSubmit("m", 30, ratingsArray); 
-  //       // router.push("/results");
-  //     } catch (err) {
-  //       console.error("submit failed", err);
-  //       // optional: show UI error
-  //     } finally {
-  //       setIsSubmitting(false);
-  //     }
-  //   };
-
-  //   submit();
-  // }, [isComplete]); 
 
   useEffect(() => () => {
     if (advanceTimerRef.current) {

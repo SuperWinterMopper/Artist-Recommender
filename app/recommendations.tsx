@@ -12,7 +12,7 @@ import useGeminiAnalysis from "./hooks/useGeminiAnalysis";
 export default function Recommendations({ artists }: { artists: ReccomendedArtist[]}) {
   const [recs, setRecs] = useState<(Question & { match_score: number })[]>([]);
   const [loading, setLoading] = useState(true);
-  const [gemeni, setGemini] = useState<string | undefined>("");
+  const [gemini, setGemini] = useState<string | undefined>("");
 
   useEffect(() => {
     const fetchArtists = async () => {
@@ -45,7 +45,7 @@ export default function Recommendations({ artists }: { artists: ReccomendedArtis
     if(recs.length == 0) return;
 
     const getGeminiAnalysis = async () => {
-      const text = await useGeminiAnalysis(recs);
+      const text: string | undefined = await useGeminiAnalysis(recs);
       if(text != undefined) {
         setGemini(text);
       }
@@ -72,7 +72,7 @@ export default function Recommendations({ artists }: { artists: ReccomendedArtis
         <p className="text-muted-foreground text-center mb-10">
           Our K-NN model found these artists based on your preferences!
         </p>
-        {gemeni ? <p>{gemeni}</p> : ""}
+        {gemini ? <div><p className="text-muted-foreground">Google Gemini has this to say about your music tastes: </p> <p>{gemini}</p></div> : ""}
         <div className="flex flex-col gap-8">
           {recs.map((artist) => (
             <Card key={artist.id} className="overflow-hidden border border-orange-300/20 bg-orange-50/5 shadow-md hover:shadow-orange-500/10 transition-all">

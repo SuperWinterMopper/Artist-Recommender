@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from .modules import test, dummyUserData, myUserData, kNN
+from .modules import test, myUserData, kNN, promptGemini
 
 app = Flask(__name__)
 
@@ -30,7 +30,7 @@ def processRatings():
     and applies processes them. 
     """
     userResponses = request.get_json()
-    print("Recieved json: ", userResponses)
+    # print("Recieved json: ", userResponses)
     return jsonify(kNN(userResponses))
 
 @app.route('/flask/stats')
@@ -54,10 +54,10 @@ def getStats():
     """
     return jsonify({'status': 'success'})
 
-@app.route('/flask/gemeni')
-def getGemeniImpression():
+@app.route('/flask/gemini', methods=['POST'])
+def getGeminiImpression():
     """
-    Returns a resopnse of Google Gemeni to the user's tastes. Returns json of the format:
+    Returns a response of Google Gemini to the user's tastes. Returns json of the format:
     { 
         'status': string,
         output: string,
@@ -67,7 +67,12 @@ def getGemeniImpression():
         'status': 'success',
         'output': 'Wow you have such great taste :D',
     }
-    return jsonify(tempReturn)
+
+    prompt = request.get_json()['prompt']
+    print("Recieved json for gemini: ", prompt)
+    output = promptGemini(prompt)
+    print("Recieved gemini output: ", output)
+    return jsonify(output)
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)
