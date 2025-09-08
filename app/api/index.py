@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from .modules import test, myUserData, kNN, promptGemini, postUserData, getUserData
+from .modules import test, kNN, promptGemini, postUserData, getUserData
 
 app = Flask(__name__)
 
@@ -20,8 +20,9 @@ def getGeminiImpression():
 @app.route('/flask/postUser', methods=['POST'])
 def postUser():
     user = request.get_json()
-    # postUserData(user)
-    return jsonify({"status": "success"})
+    print("postUser called with user: ", user)
+    response = postUserData(user)
+    return jsonify(response)
 
 @app.route('/flask/getUser')
 def getUser():

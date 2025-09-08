@@ -120,79 +120,31 @@ def kNN(user: dict[str, str]) -> dict:
 def test():
     return 658
 
-def myUserData():
-    return {
-        "user_id": "0000ef373bbn0d89ce796abae961f2705e8c1faf",
-        "gender": 'm',
-        "age": 25,
-        "the beatles": 0.5,
-        "radiohead": 1.0,
-        "linkin park": 0,
-        "coldplay": 0,
-        "muse": 1.0,
-        "pink floyd": 1.0,
-        "metallica": 1.0,
-        "nine inch nails": 1,
-        "depeche mode": 0,
-        "christina aguilera": 0,
-        "lil wayne": 0,
-        "system of a down": 1.0,
-        "red hot chili peppers": 0.5,
-        "placebo": 0,
-        "in flames": 0,
-        "death cab for cutie": 0,
-        "rammstein": 1,
-        "rise against": 0,
-        "bob dylan": 1.0,
-        "the killers": 0.0,
-        "arctic monkeys": 0.5,
-        "afi": 0,
-        "nirvana": 0.5,
-        "led zeppelin": 1.0,
-        "koЯn": 0.5,
-        "garbage": 0,
-        "iron maiden": 1,
-        "green day": 0,
-        "nightwish": 1.0,
-        "the cure": 0.0,
-        "kanye west": 0,
-        "the smashing pumpkins": 0.5,
-        "david bowie": 1.0,
-        "ac/dc": 0,
-        "queen": 1.0,
-        "björk": 1,
-        "daft punk": 1.0,
-        "jack johnson": 0.5,
-        "sigur rós": 1.0,
-        "tom waits": 1.0,
-        "u2": 0.5,
-        "tool": 1.0,
-        "böhse onkelz": 0,
-        "britney spears": 0.0,
-        "elliott smith": 0.0,
-        "madonna": 0.0,
-        "the prodigy": 0,
-        "oasis": 0.5,
-        "queens of the stone age": 0.5,
-        "boards of canada": 1.0
-    }
-
 def promptGemini(prompt: str):
     client = genai.Client()
-
-
     response = client.models.generate_content(
         model="gemini-2.5-flash", 
         contents=prompt,
-        # config=types.GenerateContentConfig(
-        #     thinking_config=types.ThinkingConfig(thinking_budget=0) # Disables thinking
-        # ),
     )
     return response.text
 
 def postUserData(user: dict):
-    # response = supabase.table('user_data').insert()
-    return {}
+    assert all(k in user.keys() for k in ['gender', 'age', 'userResponses'])
+    assert all('label' in user['userResponses'][i] for i in range(len(user['userResponses'])))
+    assert all('value' in user['userResponses'][i] for i in range(len(user['userResponses'])))
+
+    gender = user['gender']
+    age = user['age']
+    artists = [d['label'] for d in user['userResponses']]
+    ratings = [d['value'] for d in user['userResponses']]
+
+    response = (
+        supabase.table('user_data')
+        .insert( {'gender': gender, 'age': age, 'artists': artists, 'ratings': ratings} )
+        .execute()
+    )
+
+    return response.data
 
 def getUserData(id: str):
     response = supabase.table('user_data').select('*').eq("id", id).execute()

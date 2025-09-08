@@ -14,8 +14,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Recommendations from "./recommendations"
 import useGeminiAnalysis from "./hooks/useGeminiAnalysis"
-import { createClient } from "@/utils/supabase/server"
 import useGetUser from "./hooks/useGetUser"
+import useStoreResults from "./hooks/useStoreReults"
 
 const ratings: Rating[] = [
   { value: 1.0, label: "Love them" },
@@ -49,11 +49,7 @@ export default function MusicQuestionnaire() {
     const testSubmit = async () => {
       // create a names array that is all the 'label' fields in the dummyRatings array below
       const dummyRatings: Rating[] = [{'label': 'The Beatles', 'value': .5}, {'label': 'Radiohead', 'value': 1}, {'label': 'Linkin Park', 'value': .1}, {'label': 'Coldplay', 'value': .1}, {'label': 'Muse', 'value': 1}, {'label': 'Pink Floyd', 'value': 1}, {'label': 'Metallica', 'value': .5}, {'label': 'Nine Inch Nails', 'value': .5}, {'label': 'Depeche Mode', 'value': .1}, {'label': 'Christina Aguilera', 'value': .001}, {'label': 'Lil Wayne', 'value': 0}, {'label': 'System Of A Down', 'value': .5}, {'label': 'Red Hot Chili Peppers', 'value': .1}, {'label': 'Placebo', 'value': .001}, {'label': 'In Flames', 'value': .001}, {'label': 'Death Cab for Cutie', 'value': 0}, {'label': 'Rammstein', 'value': .5}, {'label': 'Rise Against', 'value': .001}, {'label': 'Bob Dylan', 'value': 1}, {'label': 'The Killers', 'value': .1} ]
-        
-        // {'label': 'Arctic Monkeys', 'value': 1}, {'label': 'AFI', 'value': 1}, {'label': 'Nirvana', 'value': 1}, {'label': 'Led Zeppelin', 'value': 1}, {'label': 'Korn', 'value': 1}, {'label': 'Garbage', 'value': 1}, {'label': 'Iron Maiden', 'value': 1}, {'label': 'Green Day', 'value': 1}, {'label': 'Nightwish', 'value': 1}, {'label': 'The Cure', 'value': 1}, {'label': 'Kanye West', 'value': 1}, {'label': 'The Smashing Pumpkins', 'value': 1}, {'label': 'David Bowie', 'value': 1}, {'label': 'AC/DC', 'value': 1}, {'label': 'Queen', 'value': 1}, {'label': 'Björk', 'value': 1}, {'label': 'Daft Punk', 'value': 1}, {'label': 'Jack Johnson', 'value': 1}, {'label': 'Sigur Rós', 'value': 1}, {'label': 'Tom Waits', 'value': 1}, {'label': 'U2', 'value': 1}, {'label': 'TOOL', 'value': 1}, {'label': 'Böhse Onkelz', 'value': 1}, {'label': 'Britney Spears', 'value': 1}, {'label': 'Elliott Smith', 'value': 1}, {'label': 'Madonna', 'value': 1}, {'label': 'The Prodigy', 'value': 1}, {'label': 'Oasis', 'value': 1}, {'label': 'Queens of the Stone Age', 'value': 1}, {'label': 'Boards of Canada', 'value': 1}]
-
-      // const names: string[] = dummyRatings.map(x => x.label);
-      
+              
       const recs: ReccomendedArtist[] = await useSubmit("m", 30, dummyRatings); 
       console.log("useSubmit(dummyRatings) has returned with ", recs);
 
@@ -71,9 +67,10 @@ export default function MusicQuestionnaire() {
     // testSubmit();
 
     const getUserTest = async () => {
-      const response = await useGetUser();
-      console.log("useGetUser returned with ", response);
-
+      // const response = await useGetUser("864356c9-1c20-4d6c-b46d-7d3b57eb5a74");
+      // console.log("useGetUser returned with ", response);
+      const response = await useStoreResults("m", 25, [{'label': 'The Beatles', 'value': .5}, {'label': 'Radiohead', 'value': 1}, {'label': 'Linkin Park', 'value': .1}, {'label': 'Coldplay', 'value': .1}, {'label': 'Muse', 'value': 1}, {'label': 'Pink Floyd', 'value': 1}, {'label': 'Metallica', 'value': .5}, {'label': 'Nine Inch Nails', 'value': .5}, {'label': 'Depeche Mode', 'value': .1}, {'label': 'Christina Aguilera', 'value': .001}, {'label': 'Lil Wayne', 'value': 0}, {'label': 'System Of A Down', 'value': .5}, {'label': 'Red Hot Chili Peppers', 'value': .1}, {'label': 'Placebo', 'value': .001}, {'label': 'In Flames', 'value': .001}, {'label': 'Death Cab for Cutie', 'value': 0}, {'label': 'Rammstein', 'value': .5}, {'label': 'Rise Against', 'value': .001}, {'label': 'Bob Dylan', 'value': 1}, {'label': 'The Killers', 'value': .1}]);
+      console.log("useStoreResults returned with ", response);
     }
     getUserTest();
 
