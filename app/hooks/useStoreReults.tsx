@@ -1,7 +1,7 @@
 import { error } from "console";
 import { Rating } from "../constants/interfaces";
 
-export default async function useStoreResults(gender: string, age: number, userResponses: Rating[]): Promise<void> {
+export default async function useStoreResults(gender: string, age: number, userResponses: Rating[]): Promise<string> {
 
     const response = await fetch('/flask/postUser', {
         method: 'POST',
@@ -15,6 +15,5 @@ export default async function useStoreResults(gender: string, age: number, userR
 
     const data = await response.json();
     console.log("data gotten from useStoreResults is ", data);
-
-    return;
+    return data.id;
 }

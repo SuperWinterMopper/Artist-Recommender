@@ -17,6 +17,17 @@ export default async function useGetUser(id: string): Promise<{ gender: string, 
     const artists: string[] = data.artists;
     const ratings: number[] = data.ratings;
 
+    if (typeof gender !== "string") {
+        throw new Error(`Expected gender to be a string, but got ${typeof gender}`);
+    }
+    if (typeof age !== "number") {
+        throw new Error(`Expected age to be a number, but got ${typeof age}`);
+    }
+    if (!Array.isArray(artists)) {
+        throw new Error(`Expected artists to be an array, but got ${typeof artists}`);
+    }
+
+
     // console log the above variables
     // console.log("Gender: ", gender);
     // console.log("Age: ", age);

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import useGeminiAnalysis from "./hooks/useGeminiAnalysis";
 
-export default function Recommendations({ artists }: { artists: ReccomendedArtist[]}) {
+export default function Recommendations({ id, artists }: { id: string | null; artists: ReccomendedArtist[]}) {
   const [recs, setRecs] = useState<(Question & { match_score: number })[]>([]);
   const [loading, setLoading] = useState(true);
   const [gemini, setGemini] = useState<string | undefined>("");
@@ -69,6 +69,7 @@ export default function Recommendations({ artists }: { artists: ReccomendedArtis
     <div className="min-h-screen bg-background py-12 px-6">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-4xl font-bold text-center mb-2">Your Music Matches</h1>
+        <p className="text-muted-foreground text-center mb-10">ID: {id}</p>
         <p className="text-muted-foreground text-center mb-10">
           Our K-NN model found these artists based on your preferences!
         </p>
@@ -87,7 +88,7 @@ export default function Recommendations({ artists }: { artists: ReccomendedArtis
                   
                   {/* Match score overlay */}
                   <div className="absolute top-0 right-0 bg-black/70 text-white px-3 py-1 rounded-bl-md font-mono">
-                    {Math.round(artist.match_score * 100)}% match
+                    {(artist.match_score * 100)}% match
                   </div>
                 </div>
                 
@@ -99,7 +100,7 @@ export default function Recommendations({ artists }: { artists: ReccomendedArtis
                   <div className="mb-4">
                     <div className="flex justify-between text-xs mb-1">
                       <span>Match Score</span>
-                      <span>{Math.round(artist.match_score * 100)}%</span>
+                      <span>{(artist.match_score * 100)}%</span>
                     </div>
                     <Progress 
                       value={artist.match_score * 100} 

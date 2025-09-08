@@ -24,7 +24,7 @@ export default async function useSubmit(gender: string, age: number, userRespons
     // Transform the format to an array of objects
     const artistsArray = Object.keys(data.artist_name).map(index => ({
       artist_name: data.artist_name[index],
-      match_score: Math.max(.11, Math.min(.95, data.match_score[index]))
-    }));
+      match_score: Number(Math.min(.95, data.match_score[index]).toFixed(2))
+    })).filter((a) => a.match_score !== 0.0); // drop exact zeros
     return artistsArray;
 }

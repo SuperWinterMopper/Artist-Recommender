@@ -22,6 +22,11 @@ def postUser():
     user = request.get_json()
     print("postUser called with user: ", user)
     response = postUserData(user)
+    if not response:
+        return jsonify({"error": "Failed to post user data"}), 500
+    if not isinstance(response, list):
+        return jsonify({"error": "Response is not a list"}), 500
+    response = response[0]
     return jsonify(response)
 
 @app.route('/flask/getUser')

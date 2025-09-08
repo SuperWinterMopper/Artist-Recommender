@@ -35,6 +35,7 @@ export default function MusicQuestionnaire() {
   const [gender, setGender] = useState<string>("") 
   const [age, setAge] = useState<number | "">("")
   const [result, setResult] = useState<ReccomendedArtist[] | null>(null);
+  const [id, setId] = useState<string | null>(null);
 
   const advanceTimerRef = useRef<number | null>(null);
 
@@ -44,7 +45,13 @@ export default function MusicQuestionnaire() {
       const q: Question[] = await useSpotifyMap(artistNames);
       setQuestions(q);
     }
-    // fetchQuestions();
+    fetchQuestions();
+
+    if (advanceTimerRef.current) {
+      window.clearTimeout(advanceTimerRef.current);
+      advanceTimerRef.current = null;
+    }
+
 
     const testSubmit = async () => {
       // create a names array that is all the 'label' fields in the dummyRatings array below
@@ -66,18 +73,40 @@ export default function MusicQuestionnaire() {
     }
     // testSubmit();
 
-    const getUserTest = async () => {
+    const dummyDataFullTest = async () => {
+      const dummyRatings: Rating[] = [{'label': 'The Beatles', 'value': .5}, {'label': 'Radiohead', 'value': 1}, {'label': 'Linkin Park', 'value': .1}, {'label': 'Coldplay', 'value': .1}, {'label': 'Muse', 'value': 1}, {'label': 'Pink Floyd', 'value': 1}, {'label': 'Metallica', 'value': .5}, {'label': 'Nine Inch Nails', 'value': .5}, {'label': 'Depeche Mode', 'value': .1}, {'label': 'Christina Aguilera', 'value': .001}, {'label': 'Lil Wayne', 'value': 0}, {'label': 'System Of A Down', 'value': .5}, {'label': 'Red Hot Chili Peppers', 'value': .1}, {'label': 'Placebo', 'value': .001}, {'label': 'In Flames', 'value': .001}, {'label': 'Death Cab for Cutie', 'value': 0}, {'label': 'Rammstein', 'value': .5}, {'label': 'Rise Against', 'value': .001}, {'label': 'Bob Dylan', 'value': 1}, {'label': 'The Killers', 'value': .1} ]
+
       // const response = await useGetUser("864356c9-1c20-4d6c-b46d-7d3b57eb5a74");
       // console.log("useGetUser returned with ", response);
-      const response = await useStoreResults("m", 25, [{'label': 'The Beatles', 'value': .5}, {'label': 'Radiohead', 'value': 1}, {'label': 'Linkin Park', 'value': .1}, {'label': 'Coldplay', 'value': .1}, {'label': 'Muse', 'value': 1}, {'label': 'Pink Floyd', 'value': 1}, {'label': 'Metallica', 'value': .5}, {'label': 'Nine Inch Nails', 'value': .5}, {'label': 'Depeche Mode', 'value': .1}, {'label': 'Christina Aguilera', 'value': .001}, {'label': 'Lil Wayne', 'value': 0}, {'label': 'System Of A Down', 'value': .5}, {'label': 'Red Hot Chili Peppers', 'value': .1}, {'label': 'Placebo', 'value': .001}, {'label': 'In Flames', 'value': .001}, {'label': 'Death Cab for Cutie', 'value': 0}, {'label': 'Rammstein', 'value': .5}, {'label': 'Rise Against', 'value': .001}, {'label': 'Bob Dylan', 'value': 1}, {'label': 'The Killers', 'value': .1}]);
-      console.log("useStoreResults returned with ", response);
+      try {
+        const id: string = await useStoreResults("m", 25, dummyRatings);
+        console.log("useStoreResults returned with id: ", id);
+        const { gender, age, userResponses } = await useGetUser(id);
+        const recs: ReccomendedArtist[] = await useSubmit(gender, Number(age), userResponses);
+        console.log("Final recs from full dummy test: ", recs);
+
+      } catch (error) {
+        throw new Error(`Failed posting and getting user data: ${error}`);
+      }
     }
-    getUserTest();
-
-
+    // dummyDataFullTest();
   }, []);
 
   useEffect(() => {
+    if(id !== null)  {
+      const submitFromStoredResults = async () => {
+        const { gender, age, userResponses } = await useGetUser(id);
+        const recs: ReccomendedArtist[] = await useSubmit(gender, Number(age), userResponses);
+        setGender(gender);
+        setAge(age);
+        setResult(recs);
+        setIsComplete(true);
+        setShowDemographics(true);
+        setIsSubmitting(false);
+      }
+      submitFromStoredResults();
+    }
+
     if (!isComplete || !showDemographics) return;
     if (isSubmitting) return;
 
@@ -95,25 +124,23 @@ export default function MusicQuestionnaire() {
 
       try {
         // Use the user-entered gender and age values
-        const recs: ReccomendedArtist[] = await useSubmit(gender, Number(age), ratingsArray);
+        const id: string = await useStoreResults("m", 25, ratingsArray);
+        const { gender, age, userResponses } = await useGetUser(id);
+        const recs: ReccomendedArtist[] = await useSubmit(gender, Number(age), userResponses);
+
+        console.log("Final recs from full dummy test: ", recs);
         setResult(recs);
+        setId(id);
 
       } catch (err) {
-        console.error("submit failed", err);
+        console.error("Submit failed", err);
       } finally {
         setIsSubmitting(false);
       }
     };
 
     submit();
-  }, [isComplete, showDemographics, gender, age, responses, questions]);
-
-  useEffect(() => () => {
-    if (advanceTimerRef.current) {
-      window.clearTimeout(advanceTimerRef.current);
-      advanceTimerRef.current = null;
-    }
-  }, []);
+  }, [isComplete, showDemographics, gender, age, responses, questions, id ]);
 
   if (questions.length == 0) {
     return <div className="flex items-center justify-center h-full">Loading...</div>
@@ -241,7 +268,7 @@ export default function MusicQuestionnaire() {
         <Card className="w-full max-w-md border border-orange-300/20 bg-orange-50/5 shadow-sm">
           <CardContent className="p-8 text-center">
             <h1 className="text-2xl font-bold mb-4">Questionnaire Complete.</h1>
-            {result ? <div><Recommendations artists={result} /></div> : null}
+            {result ? <div><Recommendations id={id} artists={result} /></div> : null}
             <Button onClick={resetQuestionnaire} className="w-full">
               Take Again
             </Button>
@@ -343,6 +370,12 @@ export default function MusicQuestionnaire() {
             </div>
           </div>
         </CardContent>
+        <p className="text-center text-muted-foreground text-sm">Already took the test? You can put in your ID to retrieve your results: 
+          <input 
+            type="text" value={id || ""} 
+            onChange={(e) => setId(e.target.value)} className="border border-muted rounded-md p-2" 
+          />
+        </p>
       </Card>
     </div>
   )
