@@ -5,6 +5,9 @@ from sklearn.preprocessing import minmax_scale
 import random, string
 from google import genai
 from google.genai import types
+import os
+from supabase import create_client, Client
+from dotenv import load_dotenv
 
 # Hyperparameters and other parameters
 questionNum = 20    # number of questions user will get asks, corresponds to the dimension of the vectors we will conduct k-NN on 
@@ -18,6 +21,12 @@ k = 300
 # min and max for age to scale our user's data appropriately
 ageMin = 1.0
 ageMax = 109.0
+
+# supabase variables
+load_dotenv() # load .env into os.
+url: str = os.environ.get("SUPABASE_URL") or ""
+key: str = os.environ.get("SUPABASE_PUBLISHABLE_KEY") or ""
+supabase: Client = create_client(url, key)
 
 def preprocess_USER(user: dict) -> pd.DataFrame:
     USER = pd.DataFrame([user])
@@ -180,3 +189,12 @@ def promptGemini(prompt: str):
         # ),
     )
     return response.text
+
+def postUserData(user: dict):
+    # response = supabase.table('user_data').insert()
+    return {}
+
+def getUserData(id: str):
+    response = supabase.table('user_data').select('*').eq("id", id).execute()
+
+    return response.data

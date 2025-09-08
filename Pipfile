@@ -9,6 +9,8 @@ pandas = "*"
 numpy = "*"
 d = "*"
 scikit-learn = "*"
+google-genai = "*"
+dotenv = "*"
 
 [dev-packages]
 ipykernel = "*"
