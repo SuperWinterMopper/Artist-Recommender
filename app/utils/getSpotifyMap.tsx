@@ -1,6 +1,6 @@
 import { Question } from "../constants/interfaces";
 
-export default async function useSpotifyMap(names: string[]): Promise<Question[]> {
+export default async function getSpotifyMap(names: string[]): Promise<Question[]> {
     const response = await fetch("/api/spotify", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -1,6 +1,6 @@
 import { Rating } from "../constants/interfaces";
 
-export default async function useGetUser(id: string): Promise<{ gender: string, age: number, userResponses: Rating[] }> {
+export default async function getUser(id: string): Promise<{ gender: string, age: number, userResponses: Rating[] }> {
     const response = await fetch(`/flask/getUser?id=${encodeURIComponent(id)}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
@@ -11,7 +11,7 @@ export default async function useGetUser(id: string): Promise<{ gender: string, 
     }
 
     const data = await response.json();
-    console.log("data gotten from useGetUser is ", data);
+    console.log("data gotten from getUser is ", data);
     const gender: string = data.gender;
     const age: number = data.age;
     const artists: string[] = data.artists;

@@ -6,8 +6,8 @@ import { Question } from "./constants/interfaces";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import useGeminiAnalysis from "./hooks/useGeminiAnalysis";
-import useSpotifyMap from "./hooks/useSpotifyMap";
+import getGeminiAnalysis from "./utils/getGeminiAnalysis";
+import useSpotifyMap from "./utils/getSpotifyMap";
 
 export default function Recommendations({ id, artists }: { id: string | null; artists: ReccomendedArtist[]}) {
   const [recs, setRecs] = useState<(Question & { match_score: number })[]>([]);
@@ -44,13 +44,13 @@ export default function Recommendations({ id, artists }: { id: string | null; ar
   useEffect(() => {
     if(recs.length == 0) return;
 
-    const getGeminiAnalysis = async () => {
-      const text: string | undefined = await useGeminiAnalysis(recs);
+    const gemini = async () => {
+      const text: string | undefined = await getGeminiAnalysis(recs);
       if(text != undefined) {
         setGemini(text);
       }
     }
-    getGeminiAnalysis();
+    gemini();
 
   }, [recs])
 

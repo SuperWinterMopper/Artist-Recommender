@@ -2,7 +2,7 @@ import Papa from "papaparse";
 import { numQuestions } from "../constants/constants";
 import { ArtistCSVRow } from "../constants/interfaces";
 
-export default async function useQuestionArtistNames(): Promise<string[]> {
+export default async function getQuestionArtistNames(): Promise<string[]> {
     const res = await fetch(`/all_artists_considered.csv`)
     const csv = await res.text()
 

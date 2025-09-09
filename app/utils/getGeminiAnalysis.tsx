@@ -1,6 +1,6 @@
 import { Question } from "../constants/interfaces";
 
-export default async function useGeminiAnalysis(data: (Question & { match_score: number; })[]): Promise<string | undefined> {
+export default async function getGeminiAnalysis(data: (Question & { match_score: number; })[]): Promise<string | undefined> {
     
     // const ai = new GoogleGenAI({});
 

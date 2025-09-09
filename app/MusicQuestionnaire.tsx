@@ -6,16 +6,16 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import type { Question, Rating, ReccomendedArtist } from "./constants/interfaces"
-import useQuestionArtistNames from "./hooks/useQuestionArtistNames"
-import useSubmit from "./hooks/useSubmit"
+import getQuestionArtistNames from "./utils/getQuestionArtistNames"
+import doSubmit from "./utils/doSubmit"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Recommendations from "./recommendations"
-import useGeminiAnalysis from "./hooks/useGeminiAnalysis"
-import useGetUser from "./hooks/useGetUser"
-import useStoreResults from "./hooks/useStoreReults"
-import useSpotifyMap from "./hooks/useSpotifyMap"
+import getGeminiAnalysis from "./utils/getGeminiAnalysis"
+import getUser from "./utils/getUser"
+import useStoreResults from "./utils/storeReults"
+import getSpotifyMap from "./utils/getSpotifyMap"
 
 const ratings: Rating[] = [
   { value: 1.0, label: "Love them" },
@@ -41,8 +41,8 @@ export default function MusicQuestionnaire() {
 
   useEffect(() => {
     const fetchQuestions = async () => {
-      const artistNames: string[] = await useQuestionArtistNames();
-      const q: Question[] = await useSpotifyMap(artistNames);
+      const artistNames: string[] = await getQuestionArtistNames();
+      const q: Question[] = await getSpotifyMap(artistNames);
       setQuestions(q);
     }
     // fetchQuestions();
@@ -57,18 +57,18 @@ export default function MusicQuestionnaire() {
       // create a names array that is all the 'label' fields in the dummyRatings array below
       const dummyRatings: Rating[] = [{'label': 'The Beatles', 'value': .5}, {'label': 'Radiohead', 'value': 1}, {'label': 'Linkin Park', 'value': .1}, {'label': 'Coldplay', 'value': .1}, {'label': 'Muse', 'value': 1}, {'label': 'Pink Floyd', 'value': 1}, {'label': 'Metallica', 'value': .5}, {'label': 'Nine Inch Nails', 'value': .5}, {'label': 'Depeche Mode', 'value': .1}, {'label': 'Christina Aguilera', 'value': .001}, {'label': 'Lil Wayne', 'value': 0}, {'label': 'System Of A Down', 'value': .5}, {'label': 'Red Hot Chili Peppers', 'value': .1}, {'label': 'Placebo', 'value': .001}, {'label': 'In Flames', 'value': .001}, {'label': 'Death Cab for Cutie', 'value': 0}, {'label': 'Rammstein', 'value': .5}, {'label': 'Rise Against', 'value': .001}, {'label': 'Bob Dylan', 'value': 1}, {'label': 'The Killers', 'value': .1} ]
               
-      const recs: ReccomendedArtist[] = await useSubmit("m", 30, dummyRatings); 
-      console.log("useSubmit(dummyRatings) has returned with ", recs);
+      const recs: ReccomendedArtist[] = await doSubmit("m", 30, dummyRatings); 
+      console.log("doSubmit(dummyRatings) has returned with ", recs);
 
       const rec_names: string[] = recs.map(x => x.artist_name);
-      const qs: Question[] = await useSpotifyMap(rec_names);
+      const qs: Question[] = await getSpotifyMap(rec_names);
 
       const scoreMap = new Map(
         recs.map(r => [r.artist_name.toLowerCase(), r.match_score])
       )
       const geminiInput: (Question & { match_score: number; })[] = qs.map(q => ({...q, match_score: scoreMap.get(q.artist_name.toLowerCase().trim()) ?? 0}))
 
-      const output: string|undefined = await useGeminiAnalysis(geminiInput); 
+      const output: string|undefined = await getGeminiAnalysis(geminiInput); 
       console.log("output from Google Gemini: ", output);
     }
     // testSubmit();
@@ -76,13 +76,13 @@ export default function MusicQuestionnaire() {
     const dummyDataFullTest = async () => {
       const dummyRatings: Rating[] = [{'label': 'The Beatles', 'value': .5}, {'label': 'Radiohead', 'value': 1}, {'label': 'Linkin Park', 'value': .1}, {'label': 'Coldplay', 'value': .1}, {'label': 'Muse', 'value': 1}, {'label': 'Pink Floyd', 'value': 1}, {'label': 'Metallica', 'value': .5}, {'label': 'Nine Inch Nails', 'value': .5}, {'label': 'Depeche Mode', 'value': .1}, {'label': 'Christina Aguilera', 'value': .001}, {'label': 'Lil Wayne', 'value': 0}, {'label': 'System Of A Down', 'value': .5}, {'label': 'Red Hot Chili Peppers', 'value': .1}, {'label': 'Placebo', 'value': .001}, {'label': 'In Flames', 'value': .001}, {'label': 'Death Cab for Cutie', 'value': 0}, {'label': 'Rammstein', 'value': .5}, {'label': 'Rise Against', 'value': .001}, {'label': 'Bob Dylan', 'value': 1}, {'label': 'The Killers', 'value': .1} ]
 
-      // const response = await useGetUser("864356c9-1c20-4d6c-b46d-7d3b57eb5a74");
-      // console.log("useGetUser returned with ", response);
+      // const response = await getUser("864356c9-1c20-4d6c-b46d-7d3b57eb5a74");
+      // console.log("getUser returned with ", response);
       try {
         const id: string = await useStoreResults("m", 25, dummyRatings);
         console.log("useStoreResults returned with id: ", id);
-        const { gender, age, userResponses } = await useGetUser(id);
-        const recs: ReccomendedArtist[] = await useSubmit(gender, Number(age), userResponses);
+        const { gender, age, userResponses } = await getUser(id);
+        const recs: ReccomendedArtist[] = await doSubmit(gender, Number(age), userResponses);
         console.log("Final recs from full dummy test: ", recs);
 
       } catch (error) {
@@ -95,8 +95,8 @@ export default function MusicQuestionnaire() {
   useEffect(() => {
     if(id !== null)  {
       const submitFromStoredResults = async () => {
-        const { gender, age, userResponses } = await useGetUser(id);
-        const recs: ReccomendedArtist[] = await useSubmit(gender, Number(age), userResponses);
+        const { gender, age, userResponses } = await getUser(id);
+        const recs: ReccomendedArtist[] = await doSubmit(gender, Number(age), userResponses);
         setGender(gender);
         setAge(age);
         setResult(recs);
@@ -125,8 +125,8 @@ export default function MusicQuestionnaire() {
       try {
         // Use the user-entered gender and age values
         const id: string = await useStoreResults("m", 25, ratingsArray);
-        const { gender, age, userResponses } = await useGetUser(id);
-        const recs: ReccomendedArtist[] = await useSubmit(gender, Number(age), userResponses);
+        const { gender, age, userResponses } = await getUser(id);
+        const recs: ReccomendedArtist[] = await doSubmit(gender, Number(age), userResponses);
 
         console.log("Final recs from full dummy test: ", recs);
         setResult(recs);
