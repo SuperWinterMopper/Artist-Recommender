@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label"
 import Recommendations from "./recommendations"
 import getGeminiAnalysis from "./utils/getGeminiAnalysis"
 import getUser from "./utils/getUser"
-import useStoreResults from "./utils/storeReults"
+import storeResults from "./utils/storeReults"
 import getSpotifyMap from "./utils/getSpotifyMap"
 
 const ratings: Rating[] = [
@@ -79,8 +79,8 @@ export default function MusicQuestionnaire() {
       // const response = await getUser("864356c9-1c20-4d6c-b46d-7d3b57eb5a74");
       // console.log("getUser returned with ", response);
       try {
-        const id: string = await useStoreResults("m", 25, dummyRatings);
-        console.log("useStoreResults returned with id: ", id);
+        const id: string = await storeResults("m", 25, dummyRatings);
+        console.log("storeResults returned with id: ", id);
         const { gender, age, userResponses } = await getUser(id);
         const recs: ReccomendedArtist[] = await doSubmit(gender, Number(age), userResponses);
         console.log("Final recs from full dummy test: ", recs);
@@ -124,7 +124,7 @@ export default function MusicQuestionnaire() {
 
       try {
         // Use the user-entered gender and age values
-        const id: string = await useStoreResults("m", 25, ratingsArray);
+        const id: string = await storeResults("m", 25, ratingsArray);
         const { gender, age, userResponses } = await getUser(id);
         const recs: ReccomendedArtist[] = await doSubmit(gender, Number(age), userResponses);
 
