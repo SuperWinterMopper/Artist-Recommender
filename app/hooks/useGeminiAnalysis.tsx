@@ -1,5 +1,4 @@
 import { Question } from "../constants/interfaces";
-import { GoogleGenAI } from "@google/genai";
 
 export default async function useGeminiAnalysis(data: (Question & { match_score: number; })[]): Promise<string | undefined> {
     

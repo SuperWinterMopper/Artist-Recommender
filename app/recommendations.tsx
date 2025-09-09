@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import type { ReccomendedArtist } from "./constants/interfaces"
 import { Question } from "./constants/interfaces";
-import useSpotifyMap from "./hooks/useSpotifyMap";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import useGeminiAnalysis from "./hooks/useGeminiAnalysis";
+import useSpotifyMap from "./hooks/useSpotifyMap";
 
 export default function Recommendations({ id, artists }: { id: string | null; artists: ReccomendedArtist[]}) {
   const [recs, setRecs] = useState<(Question & { match_score: number })[]>([]);

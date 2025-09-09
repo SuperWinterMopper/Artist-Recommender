@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import type { Question, Rating, ReccomendedArtist } from "./constants/interfaces"
 import useQuestionArtistNames from "./hooks/useQuestionArtistNames"
-import useSpotifyMap from "./hooks/useSpotifyMap"
 import useSubmit from "./hooks/useSubmit"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
@@ -16,6 +15,7 @@ import Recommendations from "./recommendations"
 import useGeminiAnalysis from "./hooks/useGeminiAnalysis"
 import useGetUser from "./hooks/useGetUser"
 import useStoreResults from "./hooks/useStoreReults"
+import useSpotifyMap from "./hooks/useSpotifyMap"
 
 const ratings: Rating[] = [
   { value: 1.0, label: "Love them" },
@@ -45,7 +45,7 @@ export default function MusicQuestionnaire() {
       const q: Question[] = await useSpotifyMap(artistNames);
       setQuestions(q);
     }
-    fetchQuestions();
+    // fetchQuestions();
 
     if (advanceTimerRef.current) {
       window.clearTimeout(advanceTimerRef.current);

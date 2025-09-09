@@ -27,13 +27,6 @@ export default async function useGetUser(id: string): Promise<{ gender: string, 
         throw new Error(`Expected artists to be an array, but got ${typeof artists}`);
     }
 
-
-    // console log the above variables
-    // console.log("Gender: ", gender);
-    // console.log("Age: ", age);
-    // console.log("Artists: ", artists);
-    // console.log("Ratings: ", ratings);
-
     if(artists.length != ratings.length) {
         throw new Error(`Artists and ratings have different lengths.\nArtists: ${artists}\nRatings: ${ratings}`);
     }
