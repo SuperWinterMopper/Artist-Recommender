@@ -1,5 +1,9 @@
 # Artist-Recommender
 
+Provides musical artist recommendations based on answering a questionnaire. Uses a k-Nearest Neighbors model trained with Last.fm's 360k dataset. Provides additional analysis with Google Gemini.
+
+Frontend hosted on ['Vercel'](https://vercel.com/), Flask backend with ['render.com'](https://render.com/), PostgreSQL database on ['Supabase'](https://supabase.com/).
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
