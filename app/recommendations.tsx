@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import getGeminiAnalysis from "./utils/getGeminiAnalysis";
-import useSpotifyMap from "./utils/getSpotifyMap";
+import getSpotifyMap from "./utils/getSpotifyMap";
 
 export default function Recommendations({ id, artists }: { id: string | null; artists: ReccomendedArtist[]}) {
   const [recs, setRecs] = useState<(Question & { match_score: number })[]>([]);
@@ -18,7 +18,7 @@ export default function Recommendations({ id, artists }: { id: string | null; ar
     const fetchArtists = async () => {
       try {
         // Get artist details from Spotify
-        const questions = await useSpotifyMap(artists.map((x) => x.artist_name));
+        const questions = await getSpotifyMap(artists.map((x) => x.artist_name));
         
         // Merge Spotify data with match scores
         const mergedRecs = questions.map(q => {
