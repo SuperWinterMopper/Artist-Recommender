@@ -12,6 +12,7 @@ d==0.2.2
 deprecation==2.1.0
 dotenv==0.9.9
 flask==3.1.2; python_version >= '3.9'
+flask-cors==6.0.1; python_version >= '3.9' and python_version < '4.0'
 google-auth==2.40.3; python_version >= '3.7'
 google-genai==1.33.0; python_version >= '3.9'
 gunicorn==23.0.0; python_version >= '3.7'

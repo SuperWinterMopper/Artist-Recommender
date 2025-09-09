@@ -1,9 +1,11 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import os
 from modules import test, kNN, promptGemini, postUserData, getUserData
 
-
 app = Flask(__name__)
+
+CORS(app=app, origins=['artist-recommender-fqgq.vercel.app/'])
 
 @app.route('/flask/ratings', methods=['POST'])
 def processRatings():

@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/flask/:path*",
-        destination: "http://localhost:5000/flask/:path*",
+        destination: "https://artist-recommender.onrender.com/:path*",
       }
     ];
   }

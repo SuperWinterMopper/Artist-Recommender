@@ -13,6 +13,7 @@ google-genai = "*"
 dotenv = "*"
 gunicorn = "*"
 supabase = "*"
+flask-cors = "*"
 
 [dev-packages]
 ipykernel = "*"
