@@ -11,6 +11,7 @@ d = "*"
 scikit-learn = "*"
 google-genai = "*"
 dotenv = "*"
+gunicorn = "*"
 
 [dev-packages]
 ipykernel = "*"
