@@ -4,9 +4,9 @@ import { Rating, ReccomendedArtist } from "../constants/interfaces";
 export default async function doSubmit(gender: string, age: number, userResponses: Rating[]): Promise<ReccomendedArtist[]> {
     // const base = process.env.NEXT_PUBLIC_BASE_API ?? "";
 
-    let input: Record<string, string | number> = { 'user_id': "qwertyuiop", 'gender': gender, 'age': age };
+    const input: Record<string, string | number> = { user_id: "qwertyuiop", gender, age };
 
-    for(const { label, value } of userResponses) {
+    for (const { label, value } of userResponses) {
         input[label.toLowerCase()] = value;
     }
 
