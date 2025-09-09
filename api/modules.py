@@ -2,9 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import minmax_scale
-import random, string
 from google import genai
-from google.genai import types
 import os
 from supabase import create_client, Client
 from dotenv import load_dotenv
@@ -44,8 +42,8 @@ def preprocess_USER(user: dict) -> pd.DataFrame:
 
 def preprocess_DATA() -> tuple[pd.DataFrame, pd.DataFrame]:
     # read in data
-    TOPQ = pd.read_csv('public/data_vectors_topQ.csv')
-    WHOLE = pd.read_csv('public/data_vectors_whole.csv')
+    TOPQ = pd.read_csv('data_vectors_topQ.csv')
+    WHOLE = pd.read_csv('data_vectors_whole.csv')
 
     # scale both USER and TOPQ data's demographic data
     TOPQ['gender'] *= genderWeight
@@ -66,7 +64,7 @@ def find_top_artists(distances, indices, WHOLE_NO_ID: pd.DataFrame) -> pd.DataFr
     top_scores = artist_scores.nlargest(numRetArtists)  # Series indexed by artist_name
     rec_artists = top_scores.index.tolist()
 
-    ARTISTS = pd.read_csv('public/all_artists_considered.csv')
+    ARTISTS = pd.read_csv('all_artists_considered.csv')
 
     ARTISTS_indexed = ARTISTS.set_index("artist_name")
     available = [a for a in rec_artists if a in ARTISTS_indexed.index]

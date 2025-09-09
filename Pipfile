@@ -12,6 +12,7 @@ scikit-learn = "*"
 google-genai = "*"
 dotenv = "*"
 gunicorn = "*"
+supabase = "*"
 
 [dev-packages]
 ipykernel = "*"
