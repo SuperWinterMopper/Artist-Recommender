@@ -74,7 +74,7 @@ def find_top_artists(distances, indices, WHOLE_NO_ID: pd.DataFrame) -> pd.DataFr
 
     ret.insert(0, "placement", range(1, len(ret) + 1))
     ret["match_score"] = top_scores.loc[ret["artist_name"]].values
-    ret["match_score"] = minmax_scale(ret["match_score"].astype(float))  
+    ret["match_score"] = minmax_scale(np.array(ret["match_score"].astype(float)).reshape(-1, 1)).flatten()
     ret.drop(columns=["artist_id", "plays", "placement"], axis=0, inplace=True)
     return ret
 

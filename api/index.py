@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 import os
-from .modules import test, kNN, promptGemini, postUserData, getUserData
+from modules import test, kNN, promptGemini, postUserData, getUserData
 
 
 app = Flask(__name__)
