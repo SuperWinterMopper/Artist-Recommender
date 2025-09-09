@@ -45,7 +45,7 @@ export default function MusicQuestionnaire() {
       const q: Question[] = await getSpotifyMap(artistNames);
       setQuestions(q);
     }
-    // fetchQuestions();
+    fetchQuestions();
 
     if (advanceTimerRef.current) {
       window.clearTimeout(advanceTimerRef.current);
