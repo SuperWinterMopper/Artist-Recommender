@@ -61,12 +61,23 @@ async function getArtistInfo(artistId: string, token: string): Promise<Question>
     return ret;
 }
 
+export async function OPTIONS() {
+    return NextResponse.json({}, { status: 200, headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+    }});
+}
+
 export async function POST(req: NextRequest) {
+    console.log("Request recieved for getting spotify information, request is ", req)
     try {
         const reqJSON = await req.json();
         const names: string[] = reqJSON.names;
 
         const token = await getSpotifyAccessToken();
+
+        console.log("spotify access token successfully retrieved");
         
         const questions: Question[] = await Promise.all(
             names.map( async (name) => {
@@ -76,7 +87,9 @@ export async function POST(req: NextRequest) {
             })
         );
         console.log("retrieved questions are", questions);
-        return NextResponse.json({ questions: questions });
+        return NextResponse.json({ questions: questions }, {
+            headers: { 'Access-Control-Allow-Origin': '*' }
+        });
     } catch(error) {
         throw new Error(`Error in getting all artists' spotify info: ${error}`);
     }

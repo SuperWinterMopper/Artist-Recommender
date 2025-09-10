@@ -8,7 +8,7 @@ export default async function getSpotifyMap(names: string[]): Promise<Question[]
     })
 
     if (!response.ok) {
-        throw new Error(`Failed to fetch data from Spotify API, ${await response.text()}`); 
+        throw new Error(`Failed to fetch data from Spotify API, ${await response.json()}`);
     }
 
     const data = await response.json()
