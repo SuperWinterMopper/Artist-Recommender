@@ -182,19 +182,16 @@ export default function MusicQuestionnaire() {
     return <div className="flex items-center justify-center h-full">Loading...</div>
   }
 
-  // Save selection only; schedule a single advance (guarded) when answering the question for the first time
   const handleRating = (artistId: string, rating: number) => {
     setResponses((prev) => {
       const alreadyAnswered = prev[artistId] !== undefined
       const next = { ...prev, [artistId]: rating }
 
       if (!alreadyAnswered) {
-        // clear any previously scheduled advance (avoid double increments)
         if (advanceTimerRef.current) {
           window.clearTimeout(advanceTimerRef.current);
           advanceTimerRef.current = null;
         }
-        // schedule a single advance that calls goNext with the updated responses snapshot
         advanceTimerRef.current = window.setTimeout(() => {
           advanceTimerRef.current = null;
           goNext(next);
@@ -249,7 +246,7 @@ export default function MusicQuestionnaire() {
         <Card className="w-full max-w-md border border-orange-300/20 bg-orange-50/5 shadow-sm">
           <CardContent className="p-8 text-center">
             <h1 className="text-2xl font-bold mb-4">Questionnaire Complete.</h1>
-            {result ? <div><Recommendations id={id} artists={result} /></div> : null}
+            {result ? <div><Recommendations id={id} artists={result} /></div> : <div>Finding your perfect matches...</div>}
             <Button onClick={resetQuestionnaire} className="w-full">
               Take Again
             </Button>
