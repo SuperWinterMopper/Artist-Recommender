@@ -42,8 +42,8 @@ def preprocess_USER(user: dict) -> pd.DataFrame:
 
 def preprocess_DATA() -> tuple[pd.DataFrame, pd.DataFrame]:
     # read in data
-    TOPQ = pd.read_csv('data_vectors_topQ.csv', dtype=np.float16)
-    WHOLE = pd.read_csv('data_vectors_whole.csv', dtype=np.float16)
+    TOPQ = pd.read_csv('data_vectors_topQ.csv', dtype=np.float16, usecols=lambda c: c not in ['user_id'])
+    WHOLE = pd.read_csv('data_vectors_whole.csv', dtype=np.float16, usecols=lambda c: c not in ['user_id'])
 
     # scale both USER and TOPQ data's demographic data
     TOPQ['gender'] *= genderWeight
@@ -84,24 +84,24 @@ def validateDataFrames(TOPQ: pd.DataFrame, WHOLE: pd.DataFrame, USER: pd.DataFra
             print(f"==============NOT SAME: {tc[i]}, {uc[i]}==============")
 
     assert(len(USER) == 1)
-    assert(len(TOPQ.columns) == questionNum + demographicsNum + 1) # + 1 for user_id
+    assert(len(TOPQ.columns) == questionNum + demographicsNum) # + 1 for user_id
     assert(len(TOPQ.columns) == len(USER.columns))
     assert(TOPQ.columns.tolist() == USER.columns.tolist())
-    assert(TOPQ.columns[1] == USER.columns[1] == 'gender')
-    assert(TOPQ.columns[2] == USER.columns[2] == 'age')
-    assert(WHOLE.columns[0:questionNum + demographicsNum + 1].tolist() == TOPQ.columns.tolist())
+    assert(TOPQ.columns[0] == USER.columns[0] == 'gender')
+    assert(TOPQ.columns[1] == USER.columns[1] == 'age')
+    assert(WHOLE.columns[0:questionNum + demographicsNum].tolist() == TOPQ.columns.tolist())
     assert(len(TOPQ) == len(WHOLE))
 
 
 def kNN(user: dict[str, str]) -> dict:
-    TOPQ, WHOLE = preprocess_DATA()
+    TOPQ_NO_ID, WHOLE_NO_ID = preprocess_DATA()
     USER = preprocess_USER(user)
 
-    validateDataFrames(TOPQ, WHOLE, USER)
+    validateDataFrames(TOPQ_NO_ID, WHOLE_NO_ID, USER)
 
-    TOPQ_NO_ID = TOPQ.drop('user_id', axis=1)
     USER_NO_ID = USER.drop('user_id', axis=1)
-    WHOLE_NO_ID = WHOLE.drop("user_id", axis=1)
+    # TOPQ_NO_ID = TOPQ.drop('user_id', axis=1)
+    # WHOLE_NO_ID = WHOLE.drop("user_id", axis=1)
 
     model = NearestNeighbors(n_neighbors=k, metric='cosine')
 
