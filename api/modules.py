@@ -96,10 +96,10 @@ def validateDataFrames(TOPQ: pd.DataFrame, WHOLE: pd.DataFrame, USER: pd.DataFra
 def kNN(user: dict[str, str]) -> dict:
     TOPQ_NO_ID, WHOLE_NO_ID = preprocess_DATA()
     USER = preprocess_USER(user)
-
-    validateDataFrames(TOPQ_NO_ID, WHOLE_NO_ID, USER)
-
     USER_NO_ID = USER.drop('user_id', axis=1)
+
+    validateDataFrames(TOPQ_NO_ID, WHOLE_NO_ID, USER_NO_ID)
+
     # TOPQ_NO_ID = TOPQ.drop('user_id', axis=1)
     # WHOLE_NO_ID = WHOLE.drop("user_id", axis=1)
 
