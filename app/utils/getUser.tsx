@@ -1,6 +1,7 @@
 import { Rating } from "../constants/interfaces";
 
 export default async function getUser(id: string): Promise<{ gender: string, age: number, userResponses: Rating[] }> {
+    console.log("calling API at: ", `/flask/getUser?id=${encodeURIComponent(id)}`);
     const response = await fetch(`/flask/getUser?id=${encodeURIComponent(id)}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },

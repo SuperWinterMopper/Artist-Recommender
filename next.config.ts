@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/flask/:path*",
+        source: "/:path*",
         destination: "https://artist-recommender.onrender.com/:path*",
       }
     ];

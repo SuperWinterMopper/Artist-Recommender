@@ -8,6 +8,7 @@ export default async function doSubmit(gender: string, age: number, userResponse
         input[label.toLowerCase()] = value;
     }
 
+    console.log("submitting to API at: ", `/flask/ratings`, " with input: ", input);
     const response = await fetch(`/flask/ratings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

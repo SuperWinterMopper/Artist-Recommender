@@ -42,8 +42,8 @@ def preprocess_USER(user: dict) -> pd.DataFrame:
 
 def preprocess_DATA() -> tuple[pd.DataFrame, pd.DataFrame]:
     # read in data
-    TOPQ = pd.read_csv('data_vectors_topQ.csv')
-    WHOLE = pd.read_csv('data_vectors_whole.csv')
+    TOPQ = pd.read_csv('data_vectors_topQ.csv', dtype=np.float16)
+    WHOLE = pd.read_csv('data_vectors_whole.csv', dtype=np.float16)
 
     # scale both USER and TOPQ data's demographic data
     TOPQ['gender'] *= genderWeight

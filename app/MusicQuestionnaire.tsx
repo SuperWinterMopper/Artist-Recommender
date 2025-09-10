@@ -36,8 +36,31 @@ export default function MusicQuestionnaire() {
   const [age, setAge] = useState<number | "">("")
   const [result, setResult] = useState<ReccomendedArtist[] | null>(null);
   const [id, setId] = useState<string | null>(null);
+  const [loadIdInput, setLoadIdInput] = useState<string>("");
 
   const advanceTimerRef = useRef<number | null>(null);
+
+  // Load stored results by id immediately (used by the form submit handler)
+  const loadById = async (idToLoad: string) => {
+    if (!idToLoad) return;
+    setIsSubmitting(true);
+    try {
+      const { gender: fetchedGender, age: fetchedAge, userResponses } = await getUser(idToLoad);
+      const recs: ReccomendedArtist[] = await doSubmit(fetchedGender, Number(fetchedAge), userResponses);
+      setGender(fetchedGender);
+      setAge(fetchedAge);
+      setResult(recs);
+      setId(idToLoad);
+      // ensure the UI flows straight to recommendations
+      setIsComplete(true);
+      setShowDemographics(true);
+    } catch (err) {
+      console.error("Failed to load stored results for id:", idToLoad, err);
+      // optionally show an error UI here
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -93,22 +116,9 @@ export default function MusicQuestionnaire() {
   }, []);
 
   useEffect(() => {
-    if(id !== null)  {
-      const submitFromStoredResults = async () => {
-        const { gender, age, userResponses } = await getUser(id);
-        const recs: ReccomendedArtist[] = await doSubmit(gender, Number(age), userResponses);
-        setGender(gender);
-        setAge(age);
-        setResult(recs);
-        setIsComplete(true);
-        setShowDemographics(true);
-        setIsSubmitting(false);
-      }
-      submitFromStoredResults();
-    }
-
     if (!isComplete || !showDemographics) return;
     if (isSubmitting) return;
+    if (id !== null) return;
 
     const submit = async () => {
       setIsSubmitting(true);
@@ -140,7 +150,33 @@ export default function MusicQuestionnaire() {
     };
 
     submit();
-  }, [isComplete, showDemographics, gender, age, responses, questions, id ]);
+  }, [isComplete, showDemographics, gender, age, responses, questions]);
+
+  useEffect(() => { 
+  if (!id) return; // skip for null/empty
+  // if we already have results, don't re-run the stored-results flow
+  if (result) return;
+
+    const submitFromStoredResults = async () => {
+      try {
+        setIsSubmitting(true);
+        const { gender, age, userResponses } = await getUser(id);
+        const recs: ReccomendedArtist[] = await doSubmit(gender, Number(age), userResponses);
+        setGender(gender);
+        setAge(age);
+        setResult(recs);
+        setIsComplete(true);
+        setShowDemographics(true);
+      } catch (err) {
+        console.error("Failed to load stored results for id:", id, err);
+        // optionally surface an error to the user here
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+    submitFromStoredResults();
+  }, [id]);
+
 
   if (questions.length == 0) {
     return <div className="flex items-center justify-center h-full">Loading...</div>
@@ -207,6 +243,22 @@ export default function MusicQuestionnaire() {
 
   const progress = ((currentQuestion) / questions.length) * 100
 
+  const showRecommendations = () => {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md border border-orange-300/20 bg-orange-50/5 shadow-sm">
+          <CardContent className="p-8 text-center">
+            <h1 className="text-2xl font-bold mb-4">Questionnaire Complete.</h1>
+            {result ? <div><Recommendations id={id} artists={result} /></div> : null}
+            <Button onClick={resetQuestionnaire} className="w-full">
+              Take Again
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   if (isComplete) {
     if (!showDemographics) {
       // Show demographics form
@@ -263,19 +315,7 @@ export default function MusicQuestionnaire() {
     }
     
     // After demographics are submitted, show completion message
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="w-full max-w-md border border-orange-300/20 bg-orange-50/5 shadow-sm">
-          <CardContent className="p-8 text-center">
-            <h1 className="text-2xl font-bold mb-4">Questionnaire Complete.</h1>
-            {result ? <div><Recommendations id={id} artists={result} /></div> : null}
-            <Button onClick={resetQuestionnaire} className="w-full">
-              Take Again
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
+    return showRecommendations();
   }
 
   const currentArtist = questions[currentQuestion]
@@ -370,12 +410,21 @@ export default function MusicQuestionnaire() {
             </div>
           </div>
         </CardContent>
-        <p className="text-center text-muted-foreground text-sm">Already took the test? You can put in your ID to retrieve your results: 
-          <input 
-            type="text" value={id || ""} 
-            onChange={(e) => setId(e.target.value)} className="border border-muted rounded-md p-2" 
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          const trimmed = loadIdInput.trim();
+          if (trimmed) loadById(trimmed);
+        }} className="text-center text-muted-foreground text-sm">
+          <label className="mr-2">Already took the test? Enter your ID to retrieve results:</label>
+          <input
+            type="text"
+            value={loadIdInput}
+            onChange={(e) => setLoadIdInput(e.target.value)}
+            placeholder="paste id here"
+            className="border border-muted rounded-md p-2 mr-2"
           />
-        </p>
+          <Button type="submit">Load</Button>
+        </form>
       </Card>
     </div>
   )
