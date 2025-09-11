@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/:path*",
-        destination: "https://artist-recommender.onrender.com/:path*",
+        destination: "https://artist-recommender-1.onrender.com/:path*",
       }
     ];
   }
