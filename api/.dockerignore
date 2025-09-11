@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.log
+.env
+.vscode/
+
+app/
+components/
+public/
+preprocessing/

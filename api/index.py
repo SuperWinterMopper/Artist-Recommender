@@ -5,7 +5,7 @@ from modules import test, kNN, promptGemini, postUserData, getUserData
 
 app = Flask(__name__)
 
-CORS(app=app, origins=['artist-recommender-fqgq.vercel.app/'])
+CORS(app=app, origins=["https://artist-recommender-fqgq.vercel.app"])
 
 @app.route('/flask/ratings', methods=['POST'])
 def processRatings():
