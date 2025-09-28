@@ -2,8 +2,17 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
 from modules import test, kNN, promptGemini, postUserData, getUserData
+import logging, sys
 
 app = Flask(__name__)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
+)
+app.logger.setLevel(logging.INFO)
+
 
 CORS(app=app, origins=["https://artist-recommender-fqgq.vercel.app"])
 
